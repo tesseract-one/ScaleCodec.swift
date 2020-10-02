@@ -10,27 +10,28 @@ import Foundation
 
 private let SCOMPACT_MAX_VALUE = BigUInt(2).power(536) - 1
 
-public struct SCompact<T: UnsignedInteger> {
+public protocol CompactCodable: UnsignedInteger {
+    static var compactMax: Self { get }
+}
+
+public struct SCompact<T: CompactCodable> {
     public let value: T;
     
     public init(_ value: T) {
         self.value = value
     }
-    
-    static var MAX_VALUE: BigUInt {
-        return SCOMPACT_MAX_VALUE
-    }
 }
 
 extension SCompact: ScaleEncodable {
     public func encode(in encoder: ScaleEncoder) throws {
-        switch value {
+        let u32 = UInt32(clamping: value)
+        switch u32 {
         case 0x00...0x3f: try encoder.encode(UInt8(value) << 2)
         case 0x40...0x3fff: try encoder.encode(UInt16(value) << 2 | 0b01)
         case 0x4000...0x3fffffff: try encoder.encode(UInt32(value) << 2 | 0b10)
         default: // BigUInt
             let buint = value as? BigUInt ?? BigUInt(value)
-            if buint > SCompact.MAX_VALUE {
+            if buint > BigUInt.compactMax {
                 throw SEncodingError.invalidValue(
                     self,
                     SEncodingError.Context(
@@ -53,16 +54,19 @@ extension SCompact: ScaleDecodable {
         case 0b00:
             value = try T(decoder.decode(UInt8.self) >> 2)
         case 0b01:
-            try checkSize(T.self, bytes: 2, decoder: decoder)
-            value = try T(decoder.decode(UInt16.self) >> 2)
+            let val = try decoder.decode(UInt16.self) >> 2
+            try checkSize(T.self, value: val, decoder: decoder)
+            value = T(val)
         case 0b10:
-            try checkSize(T.self, bytes: 4, decoder: decoder)
-            value = try T(decoder.decode(UInt32.self) >> 2)
+            let val = try decoder.decode(UInt32.self) >> 2
+            try checkSize(T.self, value: val, decoder: decoder)
+            value = T(val)
         case 0b11:
-            let len = try decoder.readOrError(count: 1, type: type(of: self))[0] >> 2 + 4
+            let len = try decoder.decode(UInt8.self) >> 2 + 4
             let bytes = try decoder.readOrError(count: Int(len), type: type(of: self))
-            try checkSize(T.self, bytes: len, decoder: decoder)
-            value = T(BigUInt(Data(bytes.reversed())))
+            let val = BigUInt(Data(bytes.reversed()))
+            try checkSize(T.self, value: val, decoder: decoder)
+            value = T.self == BigUInt.self ? val as! T : T(val)
         default: fatalError() // Only to silence compiler error
         }
     }
@@ -70,29 +74,61 @@ extension SCompact: ScaleDecodable {
 
 extension ScaleEncoder {
     @discardableResult
-    public func encodeCompact<T: UnsignedInteger>(_ value: T) throws -> ScaleEncoder {
+    public func encodeCompact<T: CompactCodable>(_ value: T) throws -> ScaleEncoder {
         return try self.encode(SCompact(value))
     }
 }
 
 extension ScaleDecoder {
-    public func decodeCompact<T: UnsignedInteger>(_ type: T.Type) throws -> T {
-        return try self.decode(SCompact<T>.self).value
+    public func decodeCompact<T: CompactCodable>(_ type: T.Type) throws -> T {
+        return try self.decodeCompact()
     }
     
-    public func decodeCompact<T: UnsignedInteger>() throws -> T {
-        return try self.decodeCompact(T.self)
+    public func decodeCompact<T: CompactCodable>() throws -> T {
+        return try self.decode(SCompact<T>.self).value
     }
 }
 
-private func checkSize<T: UnsignedInteger>(_ type: T.Type, bytes: UInt8, decoder: ScaleDecoder) throws {
-    if type != BigUInt.self && MemoryLayout<T>.size < bytes {
+private func checkSize<T1, T2>(_ type: T1.Type, value: T2, decoder: ScaleDecoder) throws
+    where T1: CompactCodable, T2: UnsignedInteger
+{
+    if T1.compactMax < value {
         throw SDecodingError.typeMismatch(
             type,
             SDecodingError.Context(
                 path: decoder.path,
-                description: "Can't store \(bytes) bytes of data in \(type)"
+                description: "Can't store \(value) in \(type)"
             )
         )
+    }
+}
+
+extension UInt8: CompactCodable {
+    public static var compactMax: UInt8 {
+        return Self.max
+    }
+}
+
+extension UInt16: CompactCodable {
+    public static var compactMax: UInt16 {
+        return Self.max
+    }
+}
+
+extension UInt32: CompactCodable {
+    public static var compactMax: UInt32 {
+        return Self.max
+    }
+}
+
+extension UInt64: CompactCodable {
+    public static var compactMax: UInt64 {
+        return Self.max
+    }
+}
+
+extension BigUInt: CompactCodable {
+    public static var compactMax: BigUInt {
+        return SCOMPACT_MAX_VALUE
     }
 }

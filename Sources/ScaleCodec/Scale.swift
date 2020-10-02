@@ -16,15 +16,15 @@ open class SCALE {
         return try SEncoder().encode(value).output
     }
     
-    open func decode<T: ScaleDecodable>(_ type: T.Type, from data: Data) throws -> T {
-        return try SDecoder(data: data).decode(type)
+    open func decode<T: ScaleDecodable>(from data: Data) throws -> T {
+        return try SDecoder(data: data).decode()
     }
     
     public static let `default`: SCALE = SCALE()
 }
 
 extension SCALE {
-    public func decode<T: ScaleDecodable>(from data: Data) throws -> T {
-        return try self.decode(T.self, from: data)
+    public func decode<T: ScaleDecodable>(_ type: T.Type, from data: Data) throws -> T {
+        return try self.decode(from: data)
     }
 }

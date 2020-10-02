@@ -17,14 +17,14 @@ public protocol ScaleDecoder {
     
     init(data: Data)
     
-    func decode<T: ScaleDecodable>(_ type: T.Type) throws -> T
+    func decode<T: ScaleDecodable>() throws -> T
     func read(count: Int) throws -> [UInt8]
     func peek(count: Int) throws -> [UInt8]
 }
 
 extension ScaleDecoder {
-    public func decode<T: ScaleDecodable>() throws -> T {
-        return try self.decode(T.self)
+    public func decode<T: ScaleDecodable>(_ type: T.Type) throws -> T {
+        return try self.decode()
     }
 }
 
@@ -66,10 +66,10 @@ internal class SDecoder: ScaleDecoder {
         }
     }
     
-    func decode<T: ScaleDecodable>(_ type: T.Type) throws -> T {
-        context.push(elem: type)
+    func decode<T: ScaleDecodable>() throws -> T {
+        context.push(elem: T.self)
         defer { context.pop() }
-        return try type.init(from: self)
+        return try T(from: self)
     }
 }
 
