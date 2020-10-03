@@ -63,11 +63,81 @@ final class OptionalTests: XCTestCase {
             RunEncDecTests(tests3)
         } catch { XCTFail("\(error)") }
     }
+    
+    func testEnum() {
+        do {
+            let tests: [(TEnum?, String)] = [
+                (nil, "00"),
+                (.c1, "01 \(try SCALE.default.encode(TEnum.c1).hex)"),
+                (.c2, "01 \(try SCALE.default.encode(TEnum.c2).hex)"),
+                (.c3, "01 \(try SCALE.default.encode(TEnum.c3).hex)")
+            ]
+            RunEncDecTests(tests)
+        } catch { XCTFail("\(error)") }
+    }
+    
+    func testDataEnum() {
+        do {
+            let tests: [(TDataEnum?, String)] = [
+                (nil, "00"),
+                (.c1(-128), "01 \(try SCALE.default.encode(TDataEnum.c1(-128)).hex)"),
+                (.c2(BigUInt.compactMax), "01 \(try SCALE.default.encode(TDataEnum.c2(BigUInt.compactMax)).hex)"),
+                (.c3(.c2), "01 \(try SCALE.default.encode(TDataEnum.c3(.c2)).hex)")
+            ]
+            RunEncDecTests(tests)
+        } catch { XCTFail("\(error)") }
+    }
+    
+    func testOptionalBool() {
+        let tests: [(Optional<Bool>?, String)] = [
+            (nil, "00"),
+            (.some(nil), "01 00"),
+            (false, "01 01"),
+            (true, "01 02"),
+        ]
+        RunEncDecTests(tests)
+    }
+    
+    func testOptionalString() {
+        do {
+            let tests: [(Optional<String>?, String)] = [
+                (nil, "00"),
+                (.some(nil), "01 00"),
+                ("Hello", "01 01 \(try SCALE.default.encode("Hello").hex)"),
+                ("World!", "01 01 \(try SCALE.default.encode("World!").hex)"),
+                ("", "01 01 \(try SCALE.default.encode("").hex)")
+            ]
+            RunEncDecTests(tests)
+        } catch { XCTFail("\(error)") }
+    }
 }
-
 
 private enum TEnum: CaseIterable, ScaleCodable {
     case c1
     case c2
     case c3
+}
+
+private enum TDataEnum: ScaleCodable, Equatable {
+    case c1(Int32)
+    case c2(BigUInt)
+    case c3(TEnum)
+    
+    init(from decoder: ScaleDecoder) throws {
+        let opt = try decoder.decodeEnumCaseId()
+        switch opt {
+        case 0: self = try .c1(decoder.decode())
+        case 1: self = try .c2(decoder.decodeCompact())
+        case 2: self = try .c3(decoder.decode())
+        default: throw decoder.enumCaseError(for: opt)
+        }
+    }
+    
+    func encode(in encoder: ScaleEncoder) throws {
+        switch self {
+        case .c1(let int): try encoder.encodeEnumCaseId(0).encode(int)
+        case .c2(let buint): try encoder.encodeEnumCaseId(1).encodeCompact(buint)
+        case .c3(let enm): try encoder.encodeEnumCaseId(2).encode(enm)
+        }
+    }
 }

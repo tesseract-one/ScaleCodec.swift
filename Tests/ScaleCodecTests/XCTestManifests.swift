@@ -63,7 +63,11 @@ extension OptionalTests {
     static let __allTests__OptionalTests = [
         ("testArray", testArray),
         ("testBool", testBool),
+        ("testDataEnum", testDataEnum),
+        ("testEnum", testEnum),
         ("testInt", testInt),
+        ("testOptionalBool", testOptionalBool),
+        ("testOptionalString", testOptionalString),
         ("testString", testString),
     ]
 }
