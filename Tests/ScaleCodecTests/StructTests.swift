@@ -170,7 +170,7 @@ private enum TDataEnum: ScaleCodable, Equatable {
     func encode(in encoder: ScaleEncoder) throws {
         switch self {
         case .c1(let str): try encoder.encodeEnumCaseId(0).encode(str)
-        case .c2(let val): try encoder.encodeEnumCaseId(1).encode(val)
+        case .c2(let int, let obool): try encoder.encodeEnumCaseId(1).encode(int).encode(obool)
         }
     }
 }

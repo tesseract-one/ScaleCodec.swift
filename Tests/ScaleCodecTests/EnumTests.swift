@@ -69,7 +69,7 @@ private enum TDataEnum: ScaleCodable, Equatable {
         switch self {
         case .c1(let uint): try encoder.encodeEnumCaseId(0).encodeCompact(uint)
         case .c2(let opt): try encoder.encodeEnumCaseId(1).encode(opt)
-        case .c3(let tuple): try encoder.encodeEnumCaseId(2).encode(tuple)
+        case .c3(let str, let int): try encoder.encodeEnumCaseId(2).encode(str).encode(int)
         case .c4(let ostr): try encoder.encodeEnumCaseId(3).encode(ostr)
         case .c5(let arr): try encoder.encodeEnumCaseId(4).encode(arr)
         }
