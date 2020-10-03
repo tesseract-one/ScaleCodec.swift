@@ -47,10 +47,12 @@ Codec supports `String`, `Bool`, `Int[8-64]`, `UInt[8-64]`,  `BigInt` and  `BigU
 ```Swift
 import ScaleCodec
 
-let data = try SCALE.default.encode(UInt32.max)
-assert(data == Data([0xff, 0xff, 0xff, 0xff]))
+let data = Data([0xff, 0xff, 0xff, 0xff])
 
-let uint32 = try SCALE.default.decode(UInt32.self, from: Data([0xff, 0xff, 0xff, 0xff]))
+let encoded = try SCALE.default.encode(UInt32.max)
+assert(encoded == data)
+
+let uint32 = try SCALE.default.decode(UInt32.self, from: data)
 assert(uint32 == UInt32.max)
 ```
 
@@ -58,18 +60,24 @@ assert(uint32 == UInt32.max)
 
 `UInt[8-64]` and  `BigUInt` types can be encoded with compact encoding. This allows `BigUInt` to store values up to `2^536-1`.
 
-ScaleCodec has special wrapper type `SCompact` which encodes and decodes values in this format. 
+ScaleCodec has special wrapper type `SCompact` which encodes and decodes values in this format and two helper methods.
 
 Example:
 
 ```Swift
 import ScaleCodec
 
-let data = try SCALE.default.encode(SCompact(UInt64(1 << 32)))
-assert(data == Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01]))
+let data = Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01]
 
-let compact = try SCALE.default.decode(SCompact<UInt64>.self, from: Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01]))
-assert(compact.value == UInt64(1 << 32))
+let encoded = try SCALE.default.encodeCompact(UInt64(1 << 32))
+assert(encoded == data))
+
+let compact = try SCALE.default.decodeCompact(UInt64.self, from: data)
+assert(compact == UInt64(1 << 32))
+
+// without helper methods
+// let encoded = try SCALE.default.encode(SCompact(UInt64(1 << 32)))
+// let compact = try SCALE.default.decode(SCompact<UInt64>.self, from: data).value
 ```
 
 ### Container types
@@ -90,18 +98,22 @@ assert(array == decoded)
 
 ### Tuples
 
-Tuple encoding and decoding supported through `STuple*` set of wrappers. ScaleCodec provides `STuple()` helper which can create approptiate `STuple*` instance for Tuple. `STuple*` wrappers can be nested to support bigger tuples.
+Tuple encoding and decoding supported through `STuple*` set of wrappers. ScaleCodec provides `STuple()` helper which can create approptiate `STuple*` instance for a tuple. `STuple*` wrappers can be nested to support bigger tuples. ScaleCodec also has set of helper methods for tuples support. 
 
 ```Swift
 import ScaleCodec
 
 let tuple = (UInt32.max, "Hello")
 
-let data = try SCALE.default.encode(STuple(tuple))
+let encoded = try SCALE.default.encode(tuple)
 
-let decoded: STuple2<UInt32, String> = try SCALE.default.decode(from: data)
+let decoded: (UInt32, String) = try SCALE.default.decode(from: encoded)
 
 assert(tuple == decoded.tuple)
+
+// without helper methods
+// let encoded = try SCALE.default.encode(STuple(tuple)) // or directly STuple2(tuple)
+// let decoded = try SCALE.default.decode(STuple2<UInt32, String>.self, from: encoded).tuple
 ```
 
 ### Enums

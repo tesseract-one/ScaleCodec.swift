@@ -89,6 +89,20 @@ extension ScaleDecoder {
     }
 }
 
+extension SCALE {
+    public func encodeCompact<T: CompactCodable>(_ value: T) throws -> Data {
+        return try self.encode(SCompact(value))
+    }
+    
+    public func decodeCompact<T: CompactCodable>(_ type: T.Type, from data: Data) throws -> T {
+        return try self.decodeCompact(from: data)
+    }
+    
+    public func decodeCompact<T: CompactCodable>(from data: Data) throws -> T {
+        return try self.decode(SCompact<T>.self, from: data).value
+    }
+}
+
 private func checkSize<T1, T2>(_ type: T1.Type, value: T2, decoder: ScaleDecoder) throws
     where T1: CompactCodable, T2: UnsignedInteger
 {

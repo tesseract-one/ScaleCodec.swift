@@ -38,6 +38,16 @@ final class CompactTests: XCTestCase {
         XCTAssertThrowsError(try SCALE.default.encode(BigUInt(2).power(537)))
     }
     
+    func testTopLevelAPI() {
+        do {
+            let enc = try SCALE.default.encodeCompact(UInt32.max)
+            XCTAssertEqual(enc.hex, "03 ff ff ff ff")
+            let dec1: UInt32 = try SCALE.default.decodeCompact(from: enc)
+            let dec2 = try SCALE.default.decodeCompact(UInt32.self, from: enc)
+            XCTAssertEqual(dec1, UInt32.max)
+            XCTAssertEqual(dec2, UInt32.max)
+        } catch { XCTFail("\(error)") }
+    }
     
     func runTests<T: CompactCodable & Equatable>(_ tests: [(T, String)]) {
         let ctests = tests.map { (v, d) in
