@@ -18,12 +18,7 @@ final class EnumTests: XCTestCase {
             (.c4, "03"),
             (.c5, "04")
         ]
-        for (e, d) in values {
-            let decoded = XCTAssertNoThrowS(try SCALE.default.decode(TEnum.self, from: d.hexData!))
-            XCTAssertEqual(decoded, e)
-            let encoded = XCTAssertNoThrowS(try SCALE.default.encode(e))
-            XCTAssertEqual(encoded?.hex, d)
-        }
+        RunEncDecTests(values)
     }
     
     func testAssociatedValues() {
@@ -34,12 +29,7 @@ final class EnumTests: XCTestCase {
             (.c4("World!"), "03 01 18 57 6f 72 6c 64 21"),
             (.c5([.c1, .c3, .c5, .c2]), "04 10 00 02 04 01")
         ]
-        for (e, d) in values {
-            let decoded = XCTAssertNoThrowS(try SCALE.default.decode(TDataEnum.self, from: d.hexData!))
-            XCTAssertEqual(decoded, e)
-            let encoded = XCTAssertNoThrowS(try SCALE.default.encode(e))
-            XCTAssertEqual(encoded?.hex, d)
-        }
+        RunEncDecTests(values)
     }
     
     func testSimpleBadCaseId() {

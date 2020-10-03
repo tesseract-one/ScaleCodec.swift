@@ -10,7 +10,7 @@ import ScaleCodec
 
 final class ArrayTests: XCTestCase {
     
-    func testStringArray() {
+    func testString() {
         let values = ["Hamlet", "Война и мир", "三国演义", "أَلْف لَيْلَة وَلَيْلَة‎"];
         let encoded = """
         10 18 48 61 6d 6c 65 74 50 d0 92 d0 be d0 b9 d0 bd d0 b0 20 d0 \
@@ -18,9 +18,30 @@ final class ArrayTests: XCTestCase {
         d9 81 20 d9 84 d9 8e d9 8a d9 92 d9 84 d9 8e d8 a9 20 d9 88 d9 8e d9 84 d9 8e d9 8a d9 92 \
         d9 84 d9 8e d8 a9 e2 80 8e
         """
-        let data = XCTAssertNoThrowS(try SCALE.default.encode(values))
-        XCTAssertEqual(data?.hex, encoded)
-        let decoded = XCTAssertNoThrowS(try SCALE.default.decode(Array<String>.self, from: encoded.hexData!))
-        XCTAssertEqual(decoded, values)
+        RunEncDecTests([(values, encoded)])
+    }
+    
+    func testUInt8() {
+        let value: [UInt8] = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+        let encoded = "28 00 01 01 02 03 05 08 0d 15 22"
+        RunEncDecTests([(value, encoded)])
+    }
+    
+    func testInt16() {
+        let value: [Int16] = [0, 1, -1, 2, -2, 3, -3];
+        let encoded = "1c 00 00 01 00 ff ff 02 00 fe ff 03 00 fd ff"
+        RunEncDecTests([(value, encoded)])
+    }
+    
+    func testOptionalInt8() {
+        let value: [Int8?] = [1, -1, nil]
+        let encoded = "0c 01 01 01 ff 00"
+        RunEncDecTests([(value, encoded)])
+    }
+    
+    func testOptionalBool() {
+        let value: [Bool?] = [true, false, nil];
+        let encoded = "0c 02 01 00"
+        RunEncDecTests([(value, encoded)])
     }
 }

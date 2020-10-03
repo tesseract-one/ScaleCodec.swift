@@ -35,7 +35,9 @@ final class CompactTests: XCTestCase {
             (BigUInt.compactMax, Data(repeating: 0xff, count: 68).hex)
         ]
         runTests(tests)
+        XCTAssertThrowsError(try SCALE.default.encode(BigUInt(2).power(537)))
     }
+    
     
     func runTests<T: CompactCodable & Equatable>(_ tests: [(T, String)]) {
         let ctests = tests.map { (v, d) in

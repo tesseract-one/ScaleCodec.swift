@@ -6,7 +6,11 @@ extension ArrayTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__ArrayTests = [
-        ("testStringArray", testStringArray),
+        ("testInt16", testInt16),
+        ("testOptionalBool", testOptionalBool),
+        ("testOptionalInt8", testOptionalInt8),
+        ("testString", testString),
+        ("testUInt8", testUInt8),
     ]
 }
 
@@ -86,8 +90,8 @@ extension StringTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__StringTests = [
-        ("testDecoding", testDecoding),
-        ("testEncoding", testEncoding),
+        ("testBadUTF8", testBadUTF8),
+        ("testEncodingDecoding", testEncodingDecoding),
         ("testUTF8", testUTF8),
     ]
 }
