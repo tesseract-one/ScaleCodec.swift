@@ -14,7 +14,7 @@ public protocol CompactCodable: UnsignedInteger {
     static var compactMax: Self { get }
 }
 
-public struct SCompact<T: CompactCodable> {
+public struct SCompact<T: CompactCodable>: Equatable, Hashable {
     public let value: T;
     
     public init(_ value: T) {

@@ -10,13 +10,22 @@ import ScaleCodec
 
 final class IntegerTests: XCTestCase {
     
+    func testBool() {
+        let tests: [(Bool, String)] = [
+            (false, "00"),
+            (true, "01")
+        ]
+        RunEncDecTests(tests)
+        XCTAssertThrowsError(try SCALE.default.decode(Bool.self, from: Data([0x02])))
+    }
+    
     func testInt8() {
         let tests = intValues(
             max: Int8.max,
             min: Int8.min,
             bytes: Int8.bitWidth / 8
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testUInt8() {
@@ -24,7 +33,7 @@ final class IntegerTests: XCTestCase {
             max: UInt8.max,
             bytes: UInt8.bitWidth / 8
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testInt16() {
@@ -33,7 +42,7 @@ final class IntegerTests: XCTestCase {
             min: Int16.min,
             bytes: Int16.bitWidth / 8
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testUInt16() {
@@ -41,7 +50,7 @@ final class IntegerTests: XCTestCase {
             max: UInt16.max,
             bytes: UInt16.bitWidth / 8
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testInt32() {
@@ -50,7 +59,7 @@ final class IntegerTests: XCTestCase {
             min: Int32.min,
             bytes: Int32.bitWidth / 8
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testUInt32() {
@@ -58,7 +67,7 @@ final class IntegerTests: XCTestCase {
             max: UInt32.max,
             bytes: UInt32.bitWidth / 8
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testInt64() {
@@ -67,7 +76,7 @@ final class IntegerTests: XCTestCase {
             min: Int64.min,
             bytes: Int64.bitWidth / 8
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testUInt64() {
@@ -75,7 +84,7 @@ final class IntegerTests: XCTestCase {
             max: UInt64.max,
             bytes: UInt64.bitWidth / 8
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testInt128() {
@@ -84,7 +93,7 @@ final class IntegerTests: XCTestCase {
             min: BigInt(sign: .minus, magnitude: BigUInt(2).power(127)),
             bytes: 16
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testUInt128() {
@@ -92,7 +101,7 @@ final class IntegerTests: XCTestCase {
             max: BigUInt(2).power(128) - 1,
             bytes: 16
         )
-        runTests(tests)
+        RunEncDecTests(tests)
     }
     
     func testBigIntError() {
@@ -102,21 +111,6 @@ final class IntegerTests: XCTestCase {
     
     func testBigUIntError() {
         XCTAssertThrowsError(try SCALE.default.encode(BigUInt(2).power(128)))
-    }
-    
-    func runTests<T: BinaryInteger & ScaleCodable>(_ tests: [(T, String)]) {
-        let codec = SCALE()
-        
-        for (v, d) in tests {
-            do {
-                let data = try codec.encode(v)
-                let decoded = try codec.decode(T.self, from: d.hexData!)
-                XCTAssertEqual(data.hex, d)
-                XCTAssertEqual(decoded, v)
-            } catch {
-                XCTFail("\(error)")
-            }
-        }
     }
     
     func uintValues<T: UnsignedInteger>(max: T, bytes: Int) -> [(T, String)] {

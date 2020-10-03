@@ -37,19 +37,11 @@ final class CompactTests: XCTestCase {
         runTests(tests)
     }
     
-    func runTests<T: CompactCodable>(_ tests: [(T, String)]) {
-        let codec = SCALE()
-        
-        for (v, d) in tests {
-            do {
-                let data = try codec.encode(SCompact(v))
-                let decoded = try codec.decode(SCompact<T>.self, from: d.hexData!).value
-                XCTAssertEqual(data.hex, d)
-                XCTAssertEqual(decoded, v)
-            } catch {
-                XCTFail("\(error)")
-            }
+    func runTests<T: CompactCodable & Equatable>(_ tests: [(T, String)]) {
+        let ctests = tests.map { (v, d) in
+            return (SCompact(v), d)
         }
+        RunEncDecTests(ctests)
     }
     
     func uint8Values<T: UnsignedInteger>(_ type: T.Type) -> [(T, String)] {

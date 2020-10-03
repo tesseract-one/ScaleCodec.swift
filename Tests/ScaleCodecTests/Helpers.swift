@@ -50,3 +50,18 @@ func XCTAssertNoThrowS<T>(_ expression: @autoclosure () throws -> T, _ message: 
         return nil
     }
 }
+
+func RunEncDecTests<T: Equatable & ScaleCodable>(_ tests: [(T, String)]) {
+    let codec = SCALE.default
+    
+    for (v, d) in tests {
+        do {
+            let data = try codec.encode(v)
+            let decoded = try codec.decode(T.self, from: d.hexData!)
+            XCTAssertEqual(data.hex, d)
+            XCTAssertEqual(decoded, v)
+        } catch {
+            XCTFail("\(error)")
+        }
+    }
+}
