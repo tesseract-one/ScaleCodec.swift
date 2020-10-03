@@ -37,20 +37,6 @@ extension String {
     }
 }
 
-func XCTAssertNoThrowS<T>(_ expression: @autoclosure () throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) -> T? {
-    do {
-        return try expression()
-    } catch {
-        let m = message()
-        if m != "" {
-            XCTFail("\(m) with \(error)", file: file, line: line)
-        } else {
-            XCTFail("\(error)", file: file, line: line)
-        }
-        return nil
-    }
-}
-
 func RunEncDecTests<T: Equatable & ScaleCodable>(_ tests: [(T, String)]) {
     let codec = SCALE.default
     
