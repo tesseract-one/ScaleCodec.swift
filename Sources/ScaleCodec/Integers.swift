@@ -153,10 +153,7 @@ extension BigUInt: ScaleCodable {
         }
         self.serialize().withUnsafeBytes { bytes in
             var data: [UInt8] = bytes.reversed()
-            let zeroes = 16 - data.count
-            if zeroes > 0 {
-                data = Array<UInt8>(repeating: 0x00, count: zeroes) + data
-            }
+            data += Array<UInt8>(repeating: 0x00, count: 16 - data.count)
             encoder.write(data)
         }
     }

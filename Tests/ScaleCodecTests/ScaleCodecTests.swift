@@ -53,9 +53,7 @@ final class ScaleCodecTests: XCTestCase {
         print(data.reduce("") {$0 + String(format: "%02x", $1)})
         let test2 = try! SCALE.default.decode(TestData.self, from: data)
         print(test2)
+        let hex = try! SCALE.default.encode(SCompact(UInt8(128))).hex
+        print("VAL:", hex)
     }
-
-    static var allTests = [
-        ("testExample", testExample),
-    ]
 }

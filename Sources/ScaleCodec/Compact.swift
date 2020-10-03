@@ -36,7 +36,7 @@ extension SCompact: ScaleEncodable {
                     self,
                     SEncodingError.Context(
                         path: encoder.path,
-                        description: "Value is too big: \(buint)"
+                        description: "Value is too big: \(buint), max: \(BigUInt.compactMax)"
                     )
                 )
             }

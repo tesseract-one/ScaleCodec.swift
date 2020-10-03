@@ -9,30 +9,42 @@ import XCTest
 import ScaleCodec
 
 final class CompactTests: XCTestCase {
-    func testCompactUInt64() {
-        let tests: [(UInt64, Data)] = [
-            (0, Data([0x00])),
-            (63, Data([0xfc])),
-            (64, Data([0x01, 0x01])),
-            (16383, Data([0xfd, 0xff])),
-            (16384, Data([0x02, 0x00, 0x01, 0x00])),
-            (1073741823, Data([0xfe, 0xff, 0xff, 0xff])),
-            (1073741824, Data([0x03, 0x00, 0x00, 0x00, 0x40])),
-            ((1 << 32) - 1, Data([0x03, 0xff, 0xff, 0xff, 0xff])),
-            (1 << 32, Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01])),
-            (1 << 40, Data([0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01])),
-            (1 << 48, Data([0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01])),
-            ((1 << 56) - 1, Data([0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff])),
-            (1 << 56, Data([0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01])),
-            (UInt64.max, Data([0x13, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]))
+    
+    func testUInt8() {
+        runTests(uint8Values(UInt8.self))
+    }
+    
+    func testUInt16() {
+        runTests(uint16Values(UInt16.self))
+    }
+    
+    func testUInt32() {
+        runTests(uint32Values(UInt32.self))
+    }
+    
+    func testUInt64() {
+        runTests(uint64Values(UInt64.self))
+    }
+    
+    func testUInt128() {
+        runTests(uint128Values())
+    }
+    
+    func testBigUInt() {
+        let tests = uint128Values() + [
+            (BigUInt.compactMax, Data(repeating: 0xff, count: 68).hex)
         ]
+        runTests(tests)
+    }
+    
+    func runTests<T: CompactCodable>(_ tests: [(T, String)]) {
         let codec = SCALE()
         
         for (v, d) in tests {
             do {
                 let data = try codec.encode(SCompact(v))
-                let decoded = try codec.decode(SCompact<UInt64>.self, from: d).value
-                XCTAssertEqual(data, d)
+                let decoded = try codec.decode(SCompact<T>.self, from: d.hexData!).value
+                XCTAssertEqual(data.hex, d)
                 XCTAssertEqual(decoded, v)
             } catch {
                 XCTFail("\(error)")
@@ -40,34 +52,45 @@ final class CompactTests: XCTestCase {
         }
     }
     
-    func testCompactUInt128() {
-        let tests: [(BigUInt, Data)] = [
-            (0, Data([0x00])),
-            (63, Data([0xfc])),
-            (64, Data([0x01, 0x01])),
-            (16383, Data([0xfd, 0xff])),
-            (16384, Data([0x02, 0x00, 0x01, 0x00])),
-            (1073741823, Data([0xfe, 0xff, 0xff, 0xff])),
-            (1073741824, Data([0x03, 0x00, 0x00, 0x00, 0x40])),
-            ((1 << 32) - 1, Data([0x03, 0xff, 0xff, 0xff, 0xff])),
-            (1 << 32, Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01])),
-            (1 << 40, Data([0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01])),
-            (1 << 48, Data([0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01])),
-            ((1 << 56) - 1, Data([0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff])),
-            (1 << 56, Data([0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01])),
-            (BigUInt(UInt64.max), Data([0x13, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]))
+    func uint8Values<T: UnsignedInteger>(_ type: T.Type) -> [(T, String)] {
+        return [
+            (T(0), "00"), (T(63), "fc"), (T(64), "01 01"), (T(UInt8.max), "fd 03")
         ]
-        let codec = SCALE()
-        
-        for (v, d) in tests {
-            do {
-                let data = try codec.encode(SCompact(v))
-                let decoded = try codec.decode(SCompact<BigUInt>.self, from: d).value
-                XCTAssertEqual(data, d)
-                XCTAssertEqual(decoded, v)
-            } catch {
-                XCTFail("\(error)")
-            }
-        }
+    }
+
+    func uint16Values<T: UnsignedInteger>(_ type: T.Type) -> [(T, String)] {
+        return uint8Values(type) + [
+            (T(16383), "fd ff"), (T(16384), "02 00 01 00"), (T(UInt16.max), "fe ff 03 00")
+        ]
+    }
+
+    func uint32Values<T: UnsignedInteger>(_ type: T.Type) -> [(T, String)] {
+        return uint16Values(type) + [
+            (T(1073741823), "fe ff ff ff"),
+            (T(1073741824), "03 00 00 00 40"),
+            (T(UInt32.max), "03 ff ff ff ff")
+        ]
+    }
+
+    func uint64Values<T: UnsignedInteger>(_ type: T.Type) -> [(T, String)] {
+        return uint32Values(type) + [
+            (T(1 << 32), "07 00 00 00 00 01"),
+            (T(1 << 40), "0b 00 00 00 00 00 01"),
+            (T(1 << 48), "0f 00 00 00 00 00 00 01"),
+            (T((1 << 56) - 1), "0f ff ff ff ff ff ff ff"),
+            (T(1 << 56), "13 00 00 00 00 00 00 00 01"),
+            (T(UInt64.max), "13 ff ff ff ff ff ff ff ff")
+        ]
+    }
+
+    func uint128Values() -> [(BigUInt, String)] {
+        return uint64Values(BigUInt.self) + [
+            (BigUInt(2).power(64), "17 00 00 00 00 00 00 00 00 01"),
+            (BigUInt(2).power(72) - 1, "17 ff ff ff ff ff ff ff ff ff"),
+            (BigUInt(2).power(72), "1b 00 00 00 00 00 00 00 00 00 01"),
+            (BigUInt(2).power(80) - 1, "1b ff ff ff ff ff ff ff ff ff ff"),
+            (BigUInt(2).power(120), "33 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01"),
+            (BigUInt(2).power(128) - 1, "33 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff")
+        ]
     }
 }

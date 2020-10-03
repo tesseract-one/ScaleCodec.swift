@@ -3,5 +3,6 @@ import XCTest
 import ScaleCodecTests
 
 var tests = [XCTestCaseEntry]()
-tests += ScaleCodecTests.allTests()
+tests += ScaleCodecTests.__allTests()
+
 XCTMain(tests)
