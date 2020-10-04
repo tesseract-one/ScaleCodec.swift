@@ -12,8 +12,8 @@ final class OptionalTests: XCTestCase {
     func testBool() {
         let tests: [(Bool?, String)] = [
             (nil, "00"),
-            (false, "01"),
-            (true, "02")
+            (true, "01"),
+            (false, "02")
         ]
         RunEncDecTests(tests)
         XCTAssertThrowsError(try SCALE.default.decode(Optional<Bool>.self, from: Data([0x03])))
@@ -92,8 +92,8 @@ final class OptionalTests: XCTestCase {
         let tests: [(Optional<Bool>?, String)] = [
             (nil, "00"),
             (.some(nil), "01 00"),
-            (false, "01 01"),
-            (true, "01 02"),
+            (true, "01 01"),
+            (false, "01 02"),
         ]
         RunEncDecTests(tests)
     }

@@ -33,7 +33,7 @@ final class StructTests: XCTestCase {
             i8: Int8.min, i16: Int16.min, i32: Int32.min, u32: UInt32.max, i64: Int64.min,
             u64: UInt64.max, i128: BigInt(-2).power(127), u128: BigUInt(2).power(128) - 1,
             c8: UInt8.max, c16: UInt16.max, c64: UInt64.max, cb: BigUInt(2).power(128) - 1,
-            enm: .c1("Hello"), earr: [.c1(nil), .c2(Int32.min, true)],
+            enm: .c1("Hello"), earr: [.c1(nil), .c2(Int32.min, false)],
             carrarr: [[0], [UInt32.max, 0, UInt32.max], []],
             strct: SimpleStruct(("Hello", Int32.max), "World!")
         )

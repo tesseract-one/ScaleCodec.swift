@@ -44,7 +44,7 @@ extension Optional: ScaleDecodable where Wrapped: ScaleDecodable {
 private func encodeBool(encoder: ScaleEncoder, _ value: Bool?) throws {
     switch value {
     case .none: try encoder.encode(UInt8(0x00))
-    case .some(let val): try encoder.encode(UInt8(val ? 0x02 : 0x01))
+    case .some(let val): try encoder.encode(UInt8(val ? 0x01 : 0x02))
     }
 }
 
@@ -52,8 +52,8 @@ private func decodeBool(decoder: ScaleDecoder) throws -> Bool? {
     let val = try decoder.decode(UInt8.self)
     switch val {
     case 0x00: return nil
-    case 0x01: return false
-    case 0x02: return true
+    case 0x01: return true
+    case 0x02: return false
     default:
         throw SDecodingError.dataCorrupted(
             SDecodingError.Context(

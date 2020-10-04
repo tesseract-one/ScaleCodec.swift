@@ -40,7 +40,7 @@ final class ArrayTests: XCTestCase {
     }
     
     func testOptionalBool() {
-        let value: [Bool?] = [true, false, nil];
+        let value: [Bool?] = [false, true, nil];
         let encoded = "0c 02 01 00"
         RunEncDecTests([(value, encoded)])
     }

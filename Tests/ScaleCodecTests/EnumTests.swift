@@ -24,7 +24,7 @@ final class EnumTests: XCTestCase {
     func testAssociatedValues() {
         let values: [(TDataEnum, String)] = [
             (.c1(54321), "00 c6 50 03 00"),
-            (.c2(false), "01 01"),
+            (.c2(true), "01 01"),
             (.c3("Hello", -654321), "02 14 48 65 6c 6c 6f 0f 04 f6 ff"),
             (.c4("World!"), "03 01 18 57 6f 72 6c 64 21"),
             (.c5([.c1, .c3, .c5, .c2]), "04 10 00 02 04 01")
