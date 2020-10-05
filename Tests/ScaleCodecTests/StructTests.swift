@@ -96,8 +96,8 @@ private struct ComplexStruct: Equatable, ScaleCodable {
         i32 = try decoder.decode(); u32 = try decoder.decode()
         i64 = try decoder.decode(); u64 = try decoder.decode()
         i128 = try decoder.decode(); u128 = try decoder.decode()
-        c8 = try decoder.decodeCompact(); c16 = try decoder.decodeCompact()
-        c64 = try decoder.decodeCompact(); cb = try decoder.decodeCompact()
+        c8 = try decoder.decode(.compact); c16 = try decoder.decode(.compact)
+        c64 = try decoder.decode(.compact); cb = try decoder.decode(.compact)
         enm = try decoder.decode(); earr = try decoder.decode()
         let sarr = try decoder.decode(Array<Array<SCompact<UInt32>>>.self)
         carrarr = sarr.map { $0.map { $0.value } }
@@ -108,8 +108,8 @@ private struct ComplexStruct: Equatable, ScaleCodable {
         let sarr = carrarr.map { $0.map { SCompact($0) } }
         try encoder.encode(i8).encode(i16).encode(i32)
             .encode(u32).encode(i64).encode(u64).encode(i128)
-            .encode(u128).encodeCompact(c8).encodeCompact(c16)
-            .encodeCompact(c64).encodeCompact(cb).encode(enm)
+            .encode(u128).encode(compact: c8).encode(compact: c16)
+            .encode(compact: c64).encode(compact: cb).encode(enm)
             .encode(earr).encode(sarr).encode(strct)
     }
     
@@ -146,11 +146,11 @@ private struct Wrapper: ScaleCodable, Equatable {
     }
     
     init(from decoder: ScaleDecoder) throws {
-        wrapped = try decoder.decodeCompact()
+        wrapped = try decoder.decode(.compact)
     }
     
     func encode(in encoder: ScaleEncoder) throws {
-        try encoder.encodeCompact(wrapped)
+        try encoder.encode(compact: wrapped)
     }
 }
 
@@ -159,7 +159,7 @@ private enum TDataEnum: ScaleCodable, Equatable {
     case c2(Int32, Bool?)
     
     init(from decoder: ScaleDecoder) throws {
-        let opt = try decoder.decodeEnumCaseId()
+        let opt = try decoder.decode(.enumCaseId)
         switch opt {
         case 0: self = try .c1(decoder.decode())
         case 1: self = try .c2(decoder.decode(), decoder.decode())
@@ -169,8 +169,8 @@ private enum TDataEnum: ScaleCodable, Equatable {
     
     func encode(in encoder: ScaleEncoder) throws {
         switch self {
-        case .c1(let str): try encoder.encodeEnumCaseId(0).encode(str)
-        case .c2(let int, let obool): try encoder.encodeEnumCaseId(1).encode(int).encode(obool)
+        case .c1(let str): try encoder.encode(enumCaseId: 0).encode(str)
+        case .c2(let int, let obool): try encoder.encode(enumCaseId: 1).encode(int).encode(obool)
         }
     }
 }

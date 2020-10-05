@@ -40,10 +40,10 @@ final class CompactTests: XCTestCase {
     
     func testTopLevelAPI() {
         do {
-            let enc = try SCALE.default.encodeCompact(UInt32.max)
+            let enc = try SCALE.default.encode(compact: UInt32.max)
             XCTAssertEqual(enc.hex, "03 ff ff ff ff")
-            let dec1: UInt32 = try SCALE.default.decodeCompact(from: enc)
-            let dec2 = try SCALE.default.decodeCompact(UInt32.self, from: enc)
+            let dec1: UInt32 = try SCALE.default.decode(.compact, from: enc)
+            let dec2 = try SCALE.default.decode(UInt32.self, .compact, from: enc)
             XCTAssertEqual(dec1, UInt32.max)
             XCTAssertEqual(dec2, UInt32.max)
         } catch { XCTFail("\(error)") }

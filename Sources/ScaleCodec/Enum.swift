@@ -10,13 +10,13 @@ import Foundation
 extension CaseIterable where Self: Equatable & ScaleEncodable, Self.AllCases.Index == Int {
     public func encode(in encoder: ScaleEncoder) throws {
         let caseId = Self.allCases.firstIndex(of: self)! // It's safe.
-        try encoder.encodeEnumCaseId(UInt8(caseId))
+        try encoder.encode(enumCaseId: UInt8(caseId))
     }
 }
 
 extension CaseIterable where Self: Equatable & ScaleDecodable, Self.AllCases.Index == Int {
     public init(from decoder: ScaleDecoder) throws {
-        let caseId = try decoder.decodeEnumCaseId()
+        let caseId = try decoder.decode(.enumCaseId)
         guard caseId < Self.allCases.count else {
             throw decoder.enumCaseError(for: caseId)
         }
@@ -24,9 +24,12 @@ extension CaseIterable where Self: Equatable & ScaleDecodable, Self.AllCases.Ind
     }
 }
 
+public enum EnumCaseIdTypeMarker {
+    case enumCaseId
+}
 
 extension ScaleDecoder {
-    public func decodeEnumCaseId() throws -> UInt8 {
+    public func decode(_ marker: EnumCaseIdTypeMarker) throws -> UInt8 {
         return try self.decode()
     }
     
@@ -42,7 +45,7 @@ extension ScaleDecoder {
 
 extension ScaleEncoder {
     @discardableResult
-    public func encodeEnumCaseId(_ id: UInt8) throws -> ScaleEncoder {
-        return try self.encode(id)
+    public func encode(enumCaseId: UInt8) throws -> ScaleEncoder {
+        return try self.encode(enumCaseId)
     }
 }

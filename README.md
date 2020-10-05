@@ -77,15 +77,31 @@ import ScaleCodec
 
 let data = Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01]
 
-let encoded = try SCALE.default.encodeCompact(UInt64(1 << 32))
+let encoded = try SCALE.default.encode(UInt64(1 << 32), .compact)
 assert(encoded == data))
 
-let compact = try SCALE.default.decodeCompact(UInt64.self, from: data)
+let compact = try SCALE.default.decode(UInt64.self, .compact, from: data)
 assert(compact == UInt64(1 << 32))
 
 // without helper methods
 // let encoded = try SCALE.default.encode(SCompact(UInt64(1 << 32)))
 // let compact = try SCALE.default.decode(SCompact<UInt64>.self, from: data).value
+```
+
+#### Data fixed encoding
+
+`Data` type can be encoded with fixed encoding. In this mode data length will not be stored so length should be provided manually.
+
+```Swift
+import ScaleCodec
+
+let data = Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01]
+
+let encoded = try SCALE.default.encoder().encode(data, .fixed(6)).output
+assert(encoded == data))
+
+let decoded = try SCALE.default.decoder(data: encoded).decode(Data.self, .fixed(6))
+assert(decoded == encoded == data)
 ```
 
 ### Container types
@@ -104,6 +120,23 @@ let decoded: [UInt32] = try SCALE.default.decode(from: data)
 assert(array == decoded)
 ```
 
+#### Fixed Arrays
+
+`Array` can be encoded in fixed encoding the same way as `Data`. Length should be provided manually.
+
+```Swift
+import ScaleCodec
+
+let array: [UInt32] = [1, 2, 3, 4, 5]
+
+let data = try SCALE.default.encode(array, .fixed(5))
+
+let decoded: [UInt32] = try SCALE.default.decode(.fixed(5), from: data)
+
+assert(array == decoded)
+```
+
+
 ### Tuples
 
 Tuple encoding and decoding supported through `STuple*` set of wrappers. ScaleCodec provides `STuple()` helper which can create approptiate `STuple*` instance for a tuple. `STuple*` wrappers can be nested to support bigger tuples. ScaleCodec also has set of helper methods for tuples support. 
@@ -117,7 +150,7 @@ let encoded = try SCALE.default.encode(tuple)
 
 let decoded: (UInt32, String) = try SCALE.default.decode(from: encoded)
 
-assert(tuple == decoded.tuple)
+assert(tuple == decoded)
 
 // without helper methods
 // let encoded = try SCALE.default.encode(STuple(tuple)) // or directly STuple2(tuple)
@@ -157,18 +190,18 @@ enum Test: ScaleCodable {
   case B(UInt32, String) // UInt32 will use Compact encoding.
   
   init(from decoder: ScaleDecoder) throws {
-    let opt = try decoder.decodeEnumCaseId()
+    let opt = try decoder.decode(.enumCaseId)
     switch opt {
     case 0: self = try .A(decoder.decode())
-    case 1: self = try .B(decoder.decodeCompact(), decoder.decode())
+    case 1: self = try .B(decoder.decode(.compact), decoder.decode())
     default: throw decoder.enumCaseError(for: opt)
     }
   }
   
   func encode(in encoder: ScaleEncoder) throws {
     switch self {
-    case .A(let str): try encoder.encodeEnumCaseId(0).encode(str)
-    case .B(let int, let str): try encoder.encodeEnumCaseId(1).encodeCompact(int).encode(str)
+    case .A(let str): try encoder.encode(enumCaseId: 0).encode(str)
+    case .B(let int, let str): try encoder.encode(enumCaseId: 1).encode(compact: int).encode(str)
     }
   }
 }
@@ -184,7 +217,7 @@ assert(decoded == val)
 
 ### Classes and Structures
 
-`ScaleEncodable` and `ScaleDecodable` should be implemented for classes and structures. `ScaleEncoder` and  `ScaleDecoder` has helpers methods for standard containers and types.
+`ScaleEncodable` and `ScaleDecodable` should be implemented for classes and structures. `ScaleEncoder` and  `ScaleDecoder` have helpers methods for standard containers and types.
 
 ```Swift
 import ScaleCodec
@@ -200,14 +233,14 @@ struct Test: ScaleCodable, Equatable {
   
   init(from decoder: ScaleDecoder) throws {
     var1 = try decoder.decode()
-    var2 = try decoder.decodeCompact()
+    var2 = try decoder.decode(.compact)
     var3 = try decoder.decode(Array<SCompact<UInt32>>.self).map { $0.value }
   }
   
   func encode(in encoder: ScaleEncoder) throws {
     try encoder
       .encode(var1)
-      .encodeCompact(var2)
+      .encode(compact: var2)
       .encode(var3.map { SCompact($0) })
   }
 }
@@ -219,6 +252,71 @@ let data = try SCALE.default.encode(val)
 let decoded: Test = try SCALE.default.decode(from: data)
 
 assert(decoded == val)
+```
+
+#### Fixed classes and structures
+
+Classes and structures can be created from fixed encoded `Array` and `Data` object. For convenience ScaleCodec has two sets of protocols: (`ScaleFixedEncodable`, `ScaleFixedDecodable`) and (`ScaleFixedDataEncodable`, `ScaleFixedDataDecodable`).
+
+Example:
+
+```Swift
+import ScaleCodec
+
+struct StringArray4: Equatable, ScaleFixed {
+    typealias Element = String // Fixed Array element type
+    
+    static var fixedElementCount: Int = 4 // amount of elements in Fixed Array
+    
+    var array: [String]
+    
+    init(_ array: [String]) {
+        self.array = array
+    }
+    
+    init(decoding values: [String]) throws { // decoding from Fixed Array
+        self.init(values)
+    }
+    
+    func encode() throws -> [String] { // encoding to Fixed Array
+        return self.array
+    }
+}
+
+private struct Data4: Equatable, ScaleFixedData {
+    var data: Data
+    
+    static var fixedBytesCount: Int = 4 // amount of bytes in Fixed Data
+    
+    init(_ data: Data) {
+        self.data = data
+    }
+    
+    init(decoding data: Data) throws { // decoding from Fixed Data
+        self.init(data)
+    }
+    
+    func encode() throws -> Data { // encoding to Fixed Data
+        return self.data
+    }
+}
+
+let string4 = StringArray4(["1", "2", "3", "4"])
+
+let dataS4 = try SCALE.default.encode(string4)
+
+let decoded: StringArray4 = try SCALE.default.decode(from: dataS4)
+
+assert(decoded == string4)
+
+let data4 = Data4(Data([1, 2, 3, 4]))
+
+let dataE4 = try SCALE.default.encode(data4)
+
+let decoded: Data4 = try SCALE.default.decode(from: dataE4)
+
+assert(decoded == data4)
+
 ```
 
 ## License

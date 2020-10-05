@@ -72,34 +72,38 @@ extension SCompact: ScaleDecodable {
     }
 }
 
+public enum SCompactTypeMarker {
+    case compact
+}
+
 extension ScaleEncoder {
     @discardableResult
-    public func encodeCompact<T: CompactCodable>(_ value: T) throws -> ScaleEncoder {
-        return try self.encode(SCompact(value))
+    public func encode<T: CompactCodable>(compact: T) throws -> ScaleEncoder {
+        return try self.encode(SCompact(compact))
     }
 }
 
 extension ScaleDecoder {
-    public func decodeCompact<T: CompactCodable>(_ type: T.Type) throws -> T {
-        return try self.decodeCompact()
+    public func decode<T: CompactCodable>(_ type: T.Type, _ marker: SCompactTypeMarker) throws -> T {
+        return try self.decode(marker)
     }
     
-    public func decodeCompact<T: CompactCodable>() throws -> T {
+    public func decode<T: CompactCodable>(_ marker: SCompactTypeMarker) throws -> T {
         return try self.decode(SCompact<T>.self).value
     }
 }
 
 extension SCALE {
-    public func encodeCompact<T: CompactCodable>(_ value: T) throws -> Data {
-        return try self.encode(SCompact(value))
+    public func encode<T: CompactCodable>(compact: T) throws -> Data {
+        return try self.encoder().encode(compact: compact).output
     }
     
-    public func decodeCompact<T: CompactCodable>(_ type: T.Type, from data: Data) throws -> T {
-        return try self.decodeCompact(from: data)
+    public func decode<T: CompactCodable>(_ type: T.Type, _ marker: SCompactTypeMarker, from data: Data) throws -> T {
+        return try self.decode(marker, from: data)
     }
     
-    public func decodeCompact<T: CompactCodable>(from data: Data) throws -> T {
-        return try self.decode(SCompact<T>.self, from: data).value
+    public func decode<T: CompactCodable>(_ marker: SCompactTypeMarker, from data: Data) throws -> T {
+        return try self.decoder(data: data).decode(marker)
     }
 }
 
