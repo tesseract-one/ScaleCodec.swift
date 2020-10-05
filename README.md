@@ -50,7 +50,7 @@ Following are some examples to demonstrate usage of the codec.
 
 ### Simple Types
 
-Codec supports `String`, `Bool`, `Int[8-64]`, `UInt[8-64]`,  `BigInt` and  `BigUInt` types. `BigInt` and  `BigUInt` types can store 128 bit integers.
+Codec supports `String`, `Data`, `Bool`, `Int[8-64]`, `UInt[8-64]`,  `BigInt` and  `BigUInt` types. `BigInt` and  `BigUInt` types can store 128 bit integers.
 
 ```Swift
 import ScaleCodec
