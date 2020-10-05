@@ -9,12 +9,13 @@ import Foundation
 
 extension String: ScaleCodable {
     public init(from decoder: ScaleDecoder) throws {
-        let bytes = try decoder.decode(Array<UInt8>.self)
-        guard let str = String(bytes: bytes, encoding: .utf8) else {
+        let data = try decoder.decode(Data.self)
+        guard let str = String(data: data, encoding: .utf8) else {
+            let hex = data.map { String(format: "%02x", $0) }.joined(separator: " ")
             throw SDecodingError.dataCorrupted(
                 SDecodingError.Context(
                     path: decoder.path,
-                    description: "Bad UTF8 string data: \(bytes)"
+                    description: "Bad UTF8 string data: \(hex)"
                 )
             )
         }
@@ -31,7 +32,6 @@ extension String: ScaleCodable {
                 )
             )
         }
-        let bytes = Array<UInt8>(data)
-        try encoder.encode(bytes)
+        try encoder.encode(data)
     }
 }
