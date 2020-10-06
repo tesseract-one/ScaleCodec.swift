@@ -50,7 +50,7 @@ Following are some examples to demonstrate usage of the codec.
 
 ### Simple Types
 
-Codec supports `String`, `Data`, `Bool`, `Int[8-64]`, `UInt[8-64]`,  `BigInt` and  `BigUInt` types. `BigInt` and  `BigUInt` types can store 128 bit integers.
+Codec supports `String`, `Data`, `Bool`, `Int[8-64]` and `UInt[8-64]` types.
 
 ```Swift
 import ScaleCodec
@@ -75,9 +75,9 @@ Example:
 ```Swift
 import ScaleCodec
 
-let data = Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01]
+let data = Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01])
 
-let encoded = try SCALE.default.encode(UInt64(1 << 32), .compact)
+let encoded = try SCALE.default.encode(compact: UInt64(1 << 32))
 assert(encoded == data))
 
 let compact = try SCALE.default.decode(UInt64.self, .compact, from: data)
@@ -86,6 +86,29 @@ assert(compact == UInt64(1 << 32))
 // without helper methods
 // let encoded = try SCALE.default.encode(SCompact(UInt64(1 << 32)))
 // let compact = try SCALE.default.decode(SCompact<UInt64>.self, from: data).value
+```
+
+#### Int[128-512] and UInt[128-512]
+
+`Int[128-512]` and `UInt[128-512]` types implemented as `BigInt` and `BigUInt` Swift types. For proper encoding ScaleCodec has `SInt[128-512]` and `SUInt[128-512]` wrappers. Decoder and encoder has extension methods for simpler usage.
+
+```Swift
+import ScaleCodec
+
+let data = Data([
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+])
+
+let encoded = try SCALE.default.encode(b128: BigUInt(2).pow(128) - 1)
+assert(encoded == data))
+
+let compact = try SCALE.default.decode(BigUInt.self, .b128, from: data)
+assert(compact == BigUInt(2).pow(128) - 1)
+
+// without helper methods
+// let encoded = try SCALE.default.encode(SUInt256(BigUInt(2).pow(128) - 1))
+// let compact = try SCALE.default.decode(SUInt256.self, from: data).value
 ```
 
 #### Data fixed encoding
@@ -97,7 +120,7 @@ import ScaleCodec
 
 let data = Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01]
 
-let encoded = try SCALE.default.encoder().encode(data, .fixed(6)).output
+let encoded = try SCALE.default.encoder().encode(data, fixed: 6).output
 assert(encoded == data))
 
 let decoded = try SCALE.default.decoder(data: encoded).decode(Data.self, .fixed(6))
@@ -129,7 +152,7 @@ import ScaleCodec
 
 let array: [UInt32] = [1, 2, 3, 4, 5]
 
-let data = try SCALE.default.encode(array, .fixed(5))
+let data = try SCALE.default.encode(array, fixed: 5)
 
 let decoded: [UInt32] = try SCALE.default.decode(.fixed(5), from: data)
 
