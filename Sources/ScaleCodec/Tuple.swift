@@ -1,16 +1,9 @@
 //
-//  Tuple.swift
-//  
+// Generated '2020-10-06 18:49:14 +0000' with 'generate_tuples.swift'
 //
-//  Created by Yehor Popovych on 10/1/20.
-//
-
 import Foundation
 
-// ========================
-// Tuple for 2 elements
-// ========================
-public struct STuple2<T1, T2> {
+ public struct STuple2<T1, T2> {
     public let _0: T1
     public let _1: T2
 
@@ -101,10 +94,7 @@ extension SCALE {
     }
 }
 
-// ========================
-// Tuple for 3 elements
-// ========================
-public struct STuple3<T1, T2, T3> {
+ public struct STuple3<T1, T2, T3> {
     public let _0: T1
     public let _1: T2
     public let _2: T3
@@ -196,10 +186,7 @@ extension SCALE {
     }
 }
 
-// ========================
-// Tuple for 4 elements
-// ========================
-public struct STuple4<T1, T2, T3, T4> {
+ public struct STuple4<T1, T2, T3, T4> {
     public let _0: T1
     public let _1: T2
     public let _2: T3
@@ -224,8 +211,7 @@ public func STuple<T1, T2, T3, T4>(_ t: (T1, T2, T3, T4)) -> STuple4<T1, T2, T3,
 
 extension STuple4: ScaleEncodable
     where
-        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-        T4: ScaleEncodable
+        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable
 {
     public func encode(in encoder: ScaleEncoder) throws {
         try encoder
@@ -235,8 +221,7 @@ extension STuple4: ScaleEncodable
 
 extension STuple4: ScaleDecodable
     where
-        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-        T4: ScaleDecodable
+        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable
 {
     public init(from decoder: ScaleDecoder) throws {
         try self.init(
@@ -249,16 +234,14 @@ extension STuple4: ScaleDecodable
 extension ScaleDecoder {
     public func decode<T1, T2, T3, T4>(_ t: (T1, T2, T3, T4).Type) throws -> (T1, T2, T3, T4)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable
     {
         return try self.decode(STuple4<T1, T2, T3, T4>.self).tuple
     }
 
     public func decode<T1, T2, T3, T4>() throws -> (T1, T2, T3, T4)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable
     {
         return try self.decode(STuple4<T1, T2, T3, T4>.self).tuple
     }
@@ -268,8 +251,7 @@ extension ScaleEncoder {
     @discardableResult
     public func encode<T1, T2, T3, T4>(_ value: (T1, T2, T3, T4)) throws -> ScaleEncoder
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable
     {
         try self.encode(STuple(value))
     }
@@ -278,33 +260,27 @@ extension ScaleEncoder {
 extension SCALE {
     public func encode<T1, T2, T3, T4>(_ value: (T1, T2, T3, T4)) throws -> Data
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable
     {
         return try self.encode(STuple(value))
     }
 
     public func decode<T1, T2, T3, T4>(_ t: (T1, T2, T3, T4).Type, from data: Data) throws -> (T1, T2, T3, T4)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable
     {
         return try self.decode(from: data)
     }
 
     public func decode<T1, T2, T3, T4>(from data: Data) throws -> (T1, T2, T3, T4)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable
     {
         return try self.decode(STuple4<T1, T2, T3, T4>.self, from: data).tuple
     }
 }
 
-// ========================
-// Tuple for 5 elements
-// ========================
-public struct STuple5<T1, T2, T3, T4, T5> {
+ public struct STuple5<T1, T2, T3, T4, T5> {
     public let _0: T1
     public let _1: T2
     public let _2: T3
@@ -330,8 +306,8 @@ public func STuple<T1, T2, T3, T4, T5>(_ t: (T1, T2, T3, T4, T5)) -> STuple5<T1,
 
 extension STuple5: ScaleEncodable
     where
-        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-        T4: ScaleEncodable, T5: ScaleEncodable
+        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+        T5: ScaleEncodable
 {
     public func encode(in encoder: ScaleEncoder) throws {
         try encoder
@@ -341,8 +317,8 @@ extension STuple5: ScaleEncodable
 
 extension STuple5: ScaleDecodable
     where
-        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-        T4: ScaleDecodable, T5: ScaleDecodable
+        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+        T5: ScaleDecodable
 {
     public init(from decoder: ScaleDecoder) throws {
         try self.init(
@@ -355,16 +331,16 @@ extension STuple5: ScaleDecodable
 extension ScaleDecoder {
     public func decode<T1, T2, T3, T4, T5>(_ t: (T1, T2, T3, T4, T5).Type) throws -> (T1, T2, T3, T4, T5)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable
     {
         return try self.decode(STuple5<T1, T2, T3, T4, T5>.self).tuple
     }
 
     public func decode<T1, T2, T3, T4, T5>() throws -> (T1, T2, T3, T4, T5)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable
     {
         return try self.decode(STuple5<T1, T2, T3, T4, T5>.self).tuple
     }
@@ -374,8 +350,8 @@ extension ScaleEncoder {
     @discardableResult
     public func encode<T1, T2, T3, T4, T5>(_ value: (T1, T2, T3, T4, T5)) throws -> ScaleEncoder
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable
     {
         try self.encode(STuple(value))
     }
@@ -384,33 +360,30 @@ extension ScaleEncoder {
 extension SCALE {
     public func encode<T1, T2, T3, T4, T5>(_ value: (T1, T2, T3, T4, T5)) throws -> Data
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable
     {
         return try self.encode(STuple(value))
     }
 
     public func decode<T1, T2, T3, T4, T5>(_ t: (T1, T2, T3, T4, T5).Type, from data: Data) throws -> (T1, T2, T3, T4, T5)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable
     {
         return try self.decode(from: data)
     }
 
     public func decode<T1, T2, T3, T4, T5>(from data: Data) throws -> (T1, T2, T3, T4, T5)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable
     {
         return try self.decode(STuple5<T1, T2, T3, T4, T5>.self, from: data).tuple
     }
 }
 
-// ========================
-// Tuple for 6 elements
-// ========================
-public struct STuple6<T1, T2, T3, T4, T5, T6> {
+ public struct STuple6<T1, T2, T3, T4, T5, T6> {
     public let _0: T1
     public let _1: T2
     public let _2: T3
@@ -437,8 +410,8 @@ public func STuple<T1, T2, T3, T4, T5, T6>(_ t: (T1, T2, T3, T4, T5, T6)) -> STu
 
 extension STuple6: ScaleEncodable
     where
-        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-        T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable
+        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+        T5: ScaleEncodable, T6: ScaleEncodable
 {
     public func encode(in encoder: ScaleEncoder) throws {
         try encoder
@@ -449,8 +422,8 @@ extension STuple6: ScaleEncodable
 
 extension STuple6: ScaleDecodable
     where
-        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-        T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable
+        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+        T5: ScaleDecodable, T6: ScaleDecodable
 {
     public init(from decoder: ScaleDecoder) throws {
         try self.init(
@@ -463,16 +436,16 @@ extension STuple6: ScaleDecodable
 extension ScaleDecoder {
     public func decode<T1, T2, T3, T4, T5, T6>(_ t: (T1, T2, T3, T4, T5, T6).Type) throws -> (T1, T2, T3, T4, T5, T6)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable
     {
         return try self.decode(STuple6<T1, T2, T3, T4, T5, T6>.self).tuple
     }
 
     public func decode<T1, T2, T3, T4, T5, T6>() throws -> (T1, T2, T3, T4, T5, T6)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable
     {
         return try self.decode(STuple6<T1, T2, T3, T4, T5, T6>.self).tuple
     }
@@ -482,8 +455,8 @@ extension ScaleEncoder {
     @discardableResult
     public func encode<T1, T2, T3, T4, T5, T6>(_ value: (T1, T2, T3, T4, T5, T6)) throws -> ScaleEncoder
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable
     {
         try self.encode(STuple(value))
     }
@@ -492,33 +465,30 @@ extension ScaleEncoder {
 extension SCALE {
     public func encode<T1, T2, T3, T4, T5, T6>(_ value: (T1, T2, T3, T4, T5, T6)) throws -> Data
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable
     {
         return try self.encode(STuple(value))
     }
 
     public func decode<T1, T2, T3, T4, T5, T6>(_ t: (T1, T2, T3, T4, T5, T6).Type, from data: Data) throws -> (T1, T2, T3, T4, T5, T6)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable
     {
         return try self.decode(from: data)
     }
 
     public func decode<T1, T2, T3, T4, T5, T6>(from data: Data) throws -> (T1, T2, T3, T4, T5, T6)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable
     {
         return try self.decode(STuple6<T1, T2, T3, T4, T5, T6>.self, from: data).tuple
     }
 }
 
-// ========================
-// Tuple for 7 elements
-// ========================
-public struct STuple7<T1, T2, T3, T4, T5, T6, T7> {
+ public struct STuple7<T1, T2, T3, T4, T5, T6, T7> {
     public let _0: T1
     public let _1: T2
     public let _2: T3
@@ -528,7 +498,8 @@ public struct STuple7<T1, T2, T3, T4, T5, T6, T7> {
     public let _6: T7
 
     public init(_ v1: T1, _ v2: T2, _ v3: T3, _ v4: T4, _ v5: T5, _ v6: T6, _ v7: T7) {
-        _0 = v1; _1 = v2; _2 = v3; _3 = v4; _4 = v5; _5 = v6; _6 = v7
+        _0 = v1; _1 = v2; _2 = v3; _3 = v4; _4 = v5; _5 = v6
+        _6 = v7
     }
 
     public init(_ t: (T1, T2, T3, T4, T5, T6, T7)) {
@@ -546,9 +517,8 @@ public func STuple<T1, T2, T3, T4, T5, T6, T7>(_ t: (T1, T2, T3, T4, T5, T6, T7)
 
 extension STuple7: ScaleEncodable
     where
-        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-        T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-        T7: ScaleEncodable
+        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+        T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable
 {
     public func encode(in encoder: ScaleEncoder) throws {
         try encoder
@@ -559,9 +529,8 @@ extension STuple7: ScaleEncodable
 
 extension STuple7: ScaleDecodable
     where
-        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-        T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-        T7: ScaleDecodable
+        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+        T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable
 {
     public init(from decoder: ScaleDecoder) throws {
         try self.init(
@@ -575,18 +544,16 @@ extension STuple7: ScaleDecodable
 extension ScaleDecoder {
     public func decode<T1, T2, T3, T4, T5, T6, T7>(_ t: (T1, T2, T3, T4, T5, T6, T7).Type) throws -> (T1, T2, T3, T4, T5, T6, T7)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable
     {
         return try self.decode(STuple7<T1, T2, T3, T4, T5, T6, T7>.self).tuple
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7>() throws -> (T1, T2, T3, T4, T5, T6, T7)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable
     {
         return try self.decode(STuple7<T1, T2, T3, T4, T5, T6, T7>.self).tuple
     }
@@ -596,9 +563,8 @@ extension ScaleEncoder {
     @discardableResult
     public func encode<T1, T2, T3, T4, T5, T6, T7>(_ value: (T1, T2, T3, T4, T5, T6, T7)) throws -> ScaleEncoder
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-            T7: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable
     {
         try self.encode(STuple(value))
     }
@@ -607,36 +573,30 @@ extension ScaleEncoder {
 extension SCALE {
     public func encode<T1, T2, T3, T4, T5, T6, T7>(_ value: (T1, T2, T3, T4, T5, T6, T7)) throws -> Data
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-            T7: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable
     {
         return try self.encode(STuple(value))
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7>(_ t: (T1, T2, T3, T4, T5, T6, T7).Type, from data: Data) throws -> (T1, T2, T3, T4, T5, T6, T7)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable
     {
         return try self.decode(from: data)
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7>(from data: Data) throws -> (T1, T2, T3, T4, T5, T6, T7)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable
     {
         return try self.decode(STuple7<T1, T2, T3, T4, T5, T6, T7>.self, from: data).tuple
     }
 }
 
-// ========================
-// Tuple for 8 elements
-// ========================
-public struct STuple8<T1, T2, T3, T4, T5, T6, T7, T8> {
+ public struct STuple8<T1, T2, T3, T4, T5, T6, T7, T8> {
     public let _0: T1
     public let _1: T2
     public let _2: T3
@@ -647,7 +607,8 @@ public struct STuple8<T1, T2, T3, T4, T5, T6, T7, T8> {
     public let _7: T8
 
     public init(_ v1: T1, _ v2: T2, _ v3: T3, _ v4: T4, _ v5: T5, _ v6: T6, _ v7: T7, _ v8: T8) {
-        _0 = v1; _1 = v2; _2 = v3; _3 = v4; _4 = v5; _5 = v6; _6 = v7; _7 = v8
+        _0 = v1; _1 = v2; _2 = v3; _3 = v4; _4 = v5; _5 = v6
+        _6 = v7; _7 = v8
     }
 
     public init(_ t: (T1, T2, T3, T4, T5, T6, T7, T8)) {
@@ -665,9 +626,8 @@ public func STuple<T1, T2, T3, T4, T5, T6, T7, T8>(_ t: (T1, T2, T3, T4, T5, T6,
 
 extension STuple8: ScaleEncodable
     where
-        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-        T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-        T7: ScaleEncodable, T8: ScaleEncodable
+        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+        T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable
 {
     public func encode(in encoder: ScaleEncoder) throws {
         try encoder
@@ -678,9 +638,8 @@ extension STuple8: ScaleEncodable
 
 extension STuple8: ScaleDecodable
     where
-        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-        T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-        T7: ScaleDecodable, T8: ScaleDecodable
+        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+        T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable
 {
     public init(from decoder: ScaleDecoder) throws {
         try self.init(
@@ -694,18 +653,16 @@ extension STuple8: ScaleDecodable
 extension ScaleDecoder {
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8>(_ t: (T1, T2, T3, T4, T5, T6, T7, T8).Type) throws -> (T1, T2, T3, T4, T5, T6, T7, T8)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable
     {
         return try self.decode(STuple8<T1, T2, T3, T4, T5, T6, T7, T8>.self).tuple
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8>() throws -> (T1, T2, T3, T4, T5, T6, T7, T8)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable
     {
         return try self.decode(STuple8<T1, T2, T3, T4, T5, T6, T7, T8>.self).tuple
     }
@@ -715,9 +672,8 @@ extension ScaleEncoder {
     @discardableResult
     public func encode<T1, T2, T3, T4, T5, T6, T7, T8>(_ value: (T1, T2, T3, T4, T5, T6, T7, T8)) throws -> ScaleEncoder
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-            T7: ScaleEncodable, T8: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable
     {
         try self.encode(STuple(value))
     }
@@ -726,36 +682,30 @@ extension ScaleEncoder {
 extension SCALE {
     public func encode<T1, T2, T3, T4, T5, T6, T7, T8>(_ value: (T1, T2, T3, T4, T5, T6, T7, T8)) throws -> Data
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-            T7: ScaleEncodable, T8: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable
     {
         return try self.encode(STuple(value))
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8>(_ t: (T1, T2, T3, T4, T5, T6, T7, T8).Type, from data: Data) throws -> (T1, T2, T3, T4, T5, T6, T7, T8)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable
     {
         return try self.decode(from: data)
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8>(from data: Data) throws -> (T1, T2, T3, T4, T5, T6, T7, T8)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable
     {
         return try self.decode(STuple8<T1, T2, T3, T4, T5, T6, T7, T8>.self, from: data).tuple
     }
 }
 
-// ========================
-// Tuple for 9 elements
-// ========================
-public struct STuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+ public struct STuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
     public let _0: T1
     public let _1: T2
     public let _2: T3
@@ -767,7 +717,8 @@ public struct STuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
     public let _8: T9
 
     public init(_ v1: T1, _ v2: T2, _ v3: T3, _ v4: T4, _ v5: T5, _ v6: T6, _ v7: T7, _ v8: T8, _ v9: T9) {
-        _0 = v1; _1 = v2; _2 = v3; _3 = v4; _4 = v5; _5 = v6; _6 = v7; _7 = v8; _8 = v9
+        _0 = v1; _1 = v2; _2 = v3; _3 = v4; _4 = v5; _5 = v6
+        _6 = v7; _7 = v8; _8 = v9
     }
 
     public init(_ t: (T1, T2, T3, T4, T5, T6, T7, T8, T9)) {
@@ -785,9 +736,9 @@ public func STuple<T1, T2, T3, T4, T5, T6, T7, T8, T9>(_ t: (T1, T2, T3, T4, T5,
 
 extension STuple9: ScaleEncodable
     where
-        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-        T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-        T7: ScaleEncodable, T8: ScaleEncodable, T9: ScaleEncodable
+        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+        T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable,
+        T9: ScaleEncodable
 {
     public func encode(in encoder: ScaleEncoder) throws {
         try encoder
@@ -798,9 +749,9 @@ extension STuple9: ScaleEncodable
 
 extension STuple9: ScaleDecodable
     where
-        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-        T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-        T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable
+        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+        T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+        T9: ScaleDecodable
 {
     public init(from decoder: ScaleDecoder) throws {
         try self.init(
@@ -814,18 +765,18 @@ extension STuple9: ScaleDecodable
 extension ScaleDecoder {
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8, T9>(_ t: (T1, T2, T3, T4, T5, T6, T7, T8, T9).Type) throws -> (T1, T2, T3, T4, T5, T6, T7, T8, T9)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+            T9: ScaleDecodable
     {
         return try self.decode(STuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>.self).tuple
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8, T9>() throws -> (T1, T2, T3, T4, T5, T6, T7, T8, T9)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+            T9: ScaleDecodable
     {
         return try self.decode(STuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>.self).tuple
     }
@@ -835,9 +786,9 @@ extension ScaleEncoder {
     @discardableResult
     public func encode<T1, T2, T3, T4, T5, T6, T7, T8, T9>(_ value: (T1, T2, T3, T4, T5, T6, T7, T8, T9)) throws -> ScaleEncoder
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-            T7: ScaleEncodable, T8: ScaleEncodable, T9: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable,
+            T9: ScaleEncodable
     {
         try self.encode(STuple(value))
     }
@@ -846,36 +797,33 @@ extension ScaleEncoder {
 extension SCALE {
     public func encode<T1, T2, T3, T4, T5, T6, T7, T8, T9>(_ value: (T1, T2, T3, T4, T5, T6, T7, T8, T9)) throws -> Data
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-            T7: ScaleEncodable, T8: ScaleEncodable, T9: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable,
+            T9: ScaleEncodable
     {
         return try self.encode(STuple(value))
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8, T9>(_ t: (T1, T2, T3, T4, T5, T6, T7, T8, T9).Type, from data: Data) throws -> (T1, T2, T3, T4, T5, T6, T7, T8, T9)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+            T9: ScaleDecodable
     {
         return try self.decode(from: data)
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8, T9>(from data: Data) throws -> (T1, T2, T3, T4, T5, T6, T7, T8, T9)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+            T9: ScaleDecodable
     {
         return try self.decode(STuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>.self, from: data).tuple
     }
 }
 
-// ========================
-// Tuple for 10 elements
-// ========================
-public struct STuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> {
+ public struct STuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> {
     public let _0: T1
     public let _1: T2
     public let _2: T3
@@ -888,7 +836,8 @@ public struct STuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> {
     public let _9: T10
 
     public init(_ v1: T1, _ v2: T2, _ v3: T3, _ v4: T4, _ v5: T5, _ v6: T6, _ v7: T7, _ v8: T8, _ v9: T9, _ v10: T10) {
-        _0 = v1; _1 = v2; _2 = v3; _3 = v4; _4 = v5; _5 = v6; _6 = v7; _7 = v8; _8 = v9; _9 = v10
+        _0 = v1; _1 = v2; _2 = v3; _3 = v4; _4 = v5; _5 = v6
+        _6 = v7; _7 = v8; _8 = v9; _9 = v10
     }
 
     public init(_ t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)) {
@@ -906,10 +855,9 @@ public func STuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(_ t: (T1, T2, T3, T4
 
 extension STuple10: ScaleEncodable
     where
-        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-        T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-        T7: ScaleEncodable, T8: ScaleEncodable, T9: ScaleEncodable,
-        T10: ScaleEncodable
+        T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+        T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable,
+        T9: ScaleEncodable, T10: ScaleEncodable
 {
     public func encode(in encoder: ScaleEncoder) throws {
         try encoder
@@ -920,10 +868,9 @@ extension STuple10: ScaleEncodable
 
 extension STuple10: ScaleDecodable
     where
-        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-        T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-        T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable,
-        T10: ScaleDecodable
+        T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+        T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+        T9: ScaleDecodable, T10: ScaleDecodable
 {
     public init(from decoder: ScaleDecoder) throws {
         try self.init(
@@ -938,20 +885,18 @@ extension STuple10: ScaleDecodable
 extension ScaleDecoder {
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(_ t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10).Type) throws -> (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable,
-            T10: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+            T9: ScaleDecodable, T10: ScaleDecodable
     {
         return try self.decode(STuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>.self).tuple
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>() throws -> (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable,
-            T10: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+            T9: ScaleDecodable, T10: ScaleDecodable
     {
         return try self.decode(STuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>.self).tuple
     }
@@ -961,10 +906,9 @@ extension ScaleEncoder {
     @discardableResult
     public func encode<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(_ value: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)) throws -> ScaleEncoder
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-            T7: ScaleEncodable, T8: ScaleEncodable, T9: ScaleEncodable,
-            T10: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable,
+            T9: ScaleEncodable, T10: ScaleEncodable
     {
         try self.encode(STuple(value))
     }
@@ -973,30 +917,27 @@ extension ScaleEncoder {
 extension SCALE {
     public func encode<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(_ value: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)) throws -> Data
         where
-            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable,
-            T4: ScaleEncodable, T5: ScaleEncodable, T6: ScaleEncodable,
-            T7: ScaleEncodable, T8: ScaleEncodable, T9: ScaleEncodable,
-            T10: ScaleEncodable
+            T1: ScaleEncodable, T2: ScaleEncodable, T3: ScaleEncodable, T4: ScaleEncodable,
+            T5: ScaleEncodable, T6: ScaleEncodable, T7: ScaleEncodable, T8: ScaleEncodable,
+            T9: ScaleEncodable, T10: ScaleEncodable
     {
         return try self.encode(STuple(value))
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(_ t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10).Type, from data: Data) throws -> (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable,
-            T10: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+            T9: ScaleDecodable, T10: ScaleDecodable
     {
         return try self.decode(from: data)
     }
 
     public func decode<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(from data: Data) throws -> (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
         where
-            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable,
-            T4: ScaleDecodable, T5: ScaleDecodable, T6: ScaleDecodable,
-            T7: ScaleDecodable, T8: ScaleDecodable, T9: ScaleDecodable,
-            T10: ScaleDecodable
+            T1: ScaleDecodable, T2: ScaleDecodable, T3: ScaleDecodable, T4: ScaleDecodable,
+            T5: ScaleDecodable, T6: ScaleDecodable, T7: ScaleDecodable, T8: ScaleDecodable,
+            T9: ScaleDecodable, T10: ScaleDecodable
     {
         return try self.decode(STuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>.self, from: data).tuple
     }
