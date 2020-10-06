@@ -41,7 +41,10 @@ extension SCompact: ScaleEncodable {
                 )
             }
             buint.serialize().withUnsafeBytes { bytes in
-                encoder.write([UInt8(bytes.count - 4) << 2 | 0b11] + bytes.reversed())
+                var data = Data(bytes)
+                data.reverse()
+                data.insert(UInt8(bytes.count - 4) << 2 | 0b11, at: 0)
+                encoder.write(data)
             }
         }
     }
@@ -49,23 +52,24 @@ extension SCompact: ScaleEncodable {
 
 extension SCompact: ScaleDecodable {
     public init(from decoder: ScaleDecoder) throws {
-        let first = try decoder.peekOrError(count: 1, type: type(of: self))[0]
+        let first = try decoder.peekOrError(count: 1, type: type(of: self)).first!
         switch first & 0b11 {
         case 0b00:
             value = try T(decoder.decode(UInt8.self) >> 2)
         case 0b01:
             let val = try decoder.decode(UInt16.self) >> 2
-            try checkSize(T.self, value: val, decoder: decoder)
+            try Self.checkSize(value: val, decoder: decoder)
             value = T(val)
         case 0b10:
             let val = try decoder.decode(UInt32.self) >> 2
-            try checkSize(T.self, value: val, decoder: decoder)
+            try Self.checkSize(value: val, decoder: decoder)
             value = T(val)
         case 0b11:
             let len = try decoder.decode(UInt8.self) >> 2 + 4
-            let bytes = try decoder.readOrError(count: Int(len), type: type(of: self))
-            let val = BigUInt(Data(bytes.reversed()))
-            try checkSize(T.self, value: val, decoder: decoder)
+            var bytes = try decoder.readOrError(count: Int(len), type: type(of: self))
+            bytes.reverse()
+            let val = BigUInt(bytes)
+            try Self.checkSize(value: val, decoder: decoder)
             value = T.self == BigUInt.self ? val as! T : T(val)
         default: fatalError() // Only to silence compiler error
         }
@@ -107,17 +111,19 @@ extension SCALE {
     }
 }
 
-private func checkSize<T1, T2>(_ type: T1.Type, value: T2, decoder: ScaleDecoder) throws
-    where T1: CompactCodable, T2: UnsignedInteger
-{
-    if T1.compactMax < value {
-        throw SDecodingError.typeMismatch(
-            type,
-            SDecodingError.Context(
-                path: decoder.path,
-                description: "Can't store \(value) in \(type)"
+extension SCompact {
+    private static func checkSize<T2>(value: T2, decoder: ScaleDecoder) throws
+        where T2: UnsignedInteger
+    {
+        if T.compactMax < value {
+            throw SDecodingError.typeMismatch(
+                T.self,
+                SDecodingError.Context(
+                    path: decoder.path,
+                    description: "Can't store \(value) in \(T.self)"
+                )
             )
-        )
+        }
     }
 }
 

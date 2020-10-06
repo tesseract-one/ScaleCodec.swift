@@ -88,29 +88,69 @@ final class IntegerTests: XCTestCase {
     }
     
     func testInt128() {
-        let tests = intValues(
-            max: BigInt(2).power(127) - 1,
-            min: BigInt(sign: .minus, magnitude: BigUInt(2).power(127)),
+        let tests_bi = intValues(
+            max: SInt128.max,
+            min: SInt128.min,
             bytes: 16
         )
+        let tests = tests_bi.map { (SInt128($0.0), $0.1) }
         RunEncDecTests(tests)
+        XCTAssertThrowsError(try SCALE.default.encode(b128: SInt128.max + 1))
+        XCTAssertThrowsError(try SCALE.default.encode(b128: SInt128.min - 1))
     }
     
     func testUInt128() {
-        let tests = uintValues(
-            max: BigUInt(2).power(128) - 1,
+        let tests_bi = uintValues(
+            max: SUInt128.max,
             bytes: 16
         )
+        let tests = tests_bi.map { (SUInt128($0.0), $0.1) }
+        RunEncDecTests(tests)
+        XCTAssertThrowsError(try SCALE.default.encode(b128: SUInt128.max + 1))
+    }
+    
+    func testInt256() {
+        let tests_bi = intValues(
+            max: SInt256.max,
+            min: SInt256.min,
+            bytes: 32
+        )
+        let tests = tests_bi.map { (SInt256($0.0), $0.1) }
+        XCTAssertThrowsError(try SCALE.default.encode(b256: SInt256.max + 1))
+        XCTAssertThrowsError(try SCALE.default.encode(b256: SInt256.min - 1))
         RunEncDecTests(tests)
     }
     
-    func testBigIntError() {
-        XCTAssertThrowsError(try SCALE.default.encode(BigInt(2).power(127)))
-        XCTAssertThrowsError(try SCALE.default.encode(BigInt(-2).power(127)-1))
+    func testUInt256() {
+        let tests_bi = uintValues(
+            max: SUInt256.max,
+            bytes: 32
+        )
+        let tests = tests_bi.map { (SUInt256($0.0), $0.1) }
+        RunEncDecTests(tests)
+        XCTAssertThrowsError(try SCALE.default.encode(b256: SUInt256.max + 1))
     }
     
-    func testBigUIntError() {
-        XCTAssertThrowsError(try SCALE.default.encode(BigUInt(2).power(128)))
+    func testInt512() {
+        let tests_bi = intValues(
+            max: SInt512.max,
+            min: SInt512.min,
+            bytes: 64
+        )
+        let tests = tests_bi.map { (SInt512($0.0), $0.1) }
+        RunEncDecTests(tests)
+        XCTAssertThrowsError(try SCALE.default.encode(b512: SInt512.max + 1))
+        XCTAssertThrowsError(try SCALE.default.encode(b512: SInt512.min - 1))
+    }
+    
+    func testUInt512() {
+        let tests_bi = uintValues(
+            max: SUInt512.max,
+            bytes: 64
+        )
+        let tests = tests_bi.map { (SUInt512($0.0), $0.1) }
+        RunEncDecTests(tests)
+        XCTAssertThrowsError(try SCALE.default.encode(b512: SUInt512.max + 1))
     }
     
     func uintValues<T: UnsignedInteger>(max: T, bytes: Int) -> [(T, String)] {

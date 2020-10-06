@@ -10,15 +10,14 @@ import Foundation
 extension Data: ScaleEncodable {
     public func encode(in encoder: ScaleEncoder) throws {
         try encoder.encode(compact: UInt32(count))
-        encoder.write(Array(self))
+        encoder.write(self)
     }
 }
 
 extension Data: ScaleDecodable {
     public init(from decoder: ScaleDecoder) throws {
         let count = try decoder.decode(UInt32.self, .compact)
-        let bytes = try decoder.readOrError(count: Int(count), type: Data.self)
-        self = Data(bytes)
+        self = try decoder.readOrError(count: Int(count), type: Data.self)
     }
 }
 
@@ -29,8 +28,7 @@ extension ScaleDecoder {
     
     public func decode(_ fixed: ScaleFixedTypeMarker) throws -> Data {
         guard case .fixed(let size) = fixed else { fatalError() } // compiler error silencing.
-        let bytes = try self.readOrError(count: Int(size), type: Data.self)
-        return Data(bytes)
+        return try self.readOrError(count: Int(size), type: Data.self)
     }
 }
 
@@ -45,7 +43,7 @@ extension ScaleEncoder {
                 )
             )
         }
-        self.write(Array(data))
+        self.write(data)
         return self
     }
 }

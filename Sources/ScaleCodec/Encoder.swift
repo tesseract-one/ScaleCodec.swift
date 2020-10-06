@@ -17,7 +17,7 @@ public protocol ScaleEncoder {
     
     @discardableResult
     func encode(_ value: ScaleEncodable) throws -> ScaleEncoder
-    func write(_ bytes: [UInt8])
+    func write(_ data: Data)
 }
 
 internal class SEncoder: ScaleEncoder {
@@ -41,7 +41,7 @@ internal class SEncoder: ScaleEncoder {
         return self
     }
     
-    func write(_ bytes: [UInt8]) {
-        output.append(contentsOf: bytes)
+    func write(_ data: Data) {
+        output.append(data)
     }
 }

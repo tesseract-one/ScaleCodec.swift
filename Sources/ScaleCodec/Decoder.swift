@@ -18,8 +18,8 @@ public protocol ScaleDecoder {
     init(data: Data)
     
     func decode<T: ScaleDecodable>() throws -> T
-    func read(count: Int) throws -> [UInt8]
-    func peek(count: Int) throws -> [UInt8]
+    func read(count: Int) throws -> Data
+    func peek(count: Int) throws -> Data
 }
 
 extension ScaleDecoder {
@@ -51,19 +51,17 @@ internal class SDecoder: ScaleDecoder {
         self.context = SContext()
     }
     
-    func read(count: Int) throws -> [UInt8] {
+    func read(count: Int) throws -> Data {
         let data = try peek(count: count)
         self.position += count
         return data
     }
     
-    func peek(count: Int) throws -> [UInt8] {
+    func peek(count: Int) throws -> Data {
         guard count <= length else {
             throw Error.noDataLeft
         }
-        return self.data.withUnsafeBytes { bytes in
-            Array(bytes[self.position..<self.position+count])
-        }
+        return self.data.subdata(in: self.position..<self.position+count)
     }
     
     func decode<T: ScaleDecodable>() throws -> T {
@@ -74,7 +72,7 @@ internal class SDecoder: ScaleDecoder {
 }
 
 internal extension ScaleDecoder {
-    func readOrError<T>(count: Int, type: T.Type) throws -> [UInt8] {
+    func readOrError<T>(count: Int, type: T.Type) throws -> Data {
         do {
             return try read(count: count)
         } catch SDecoder.Error.noDataLeft {
@@ -88,7 +86,7 @@ internal extension ScaleDecoder {
         }
     }
     
-    func peekOrError<T>(count: Int, type: T.Type) throws -> [UInt8] {
+    func peekOrError<T>(count: Int, type: T.Type) throws -> Data {
         do {
             return try peek(count: count)
         } catch SDecoder.Error.noDataLeft {

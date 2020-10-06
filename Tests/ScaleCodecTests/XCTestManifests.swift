@@ -68,17 +68,19 @@ extension IntegerTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__IntegerTests = [
-        ("testBigIntError", testBigIntError),
-        ("testBigUIntError", testBigUIntError),
         ("testBool", testBool),
         ("testInt128", testInt128),
         ("testInt16", testInt16),
+        ("testInt256", testInt256),
         ("testInt32", testInt32),
+        ("testInt512", testInt512),
         ("testInt64", testInt64),
         ("testInt8", testInt8),
         ("testUInt128", testUInt128),
         ("testUInt16", testUInt16),
+        ("testUInt256", testUInt256),
         ("testUInt32", testUInt32),
+        ("testUInt512", testUInt512),
         ("testUInt64", testUInt64),
         ("testUInt8", testUInt8),
     ]

@@ -35,7 +35,7 @@ final class CompactTests: XCTestCase {
             (BigUInt.compactMax, Data(repeating: 0xff, count: 68).hex)
         ]
         runTests(tests)
-        XCTAssertThrowsError(try SCALE.default.encode(BigUInt(2).power(537)))
+        XCTAssertThrowsError(try SCALE.default.encode(compact: BigUInt(2).power(537)))
     }
     
     func testTopLevelAPI() {

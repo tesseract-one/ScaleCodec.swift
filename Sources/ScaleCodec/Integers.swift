@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BigInt
 
 extension Bool: ScaleCodable {
     public init(from decoder: ScaleDecoder) throws {
@@ -31,23 +30,23 @@ extension Bool: ScaleCodable {
 
 extension UInt8: ScaleCodable {
     public init(from decoder: ScaleDecoder) throws {
-        self = try decoder.readOrError(count: 1, type: UInt8.self)[0]
+        self = try decoder.readOrError(count: 1, type: UInt8.self).first!
     }
     
     public func encode(in encoder: ScaleEncoder) throws {
-        encoder.write([self])
+        encoder.write(Data([self]))
     }
 }
 
 extension Int8: ScaleCodable {
     public init(from decoder: ScaleDecoder) throws {
-        let uint = try decoder.readOrError(count: 1, type: Int8.self)[0]
+        let uint = try decoder.readOrError(count: 1, type: Int8.self).first!
         self = Int8(bitPattern: uint)
     }
     
     public func encode(in encoder: ScaleEncoder) throws {
         let uint = UInt8(bitPattern: self)
-        encoder.write([uint])
+        encoder.write(Data([uint]))
     }
 }
 
@@ -60,7 +59,7 @@ extension UInt16: ScaleCodable {
     
     public func encode(in encoder: ScaleEncoder) throws {
         withUnsafeBytes(of: self.littleEndian) {
-            encoder.write(Array($0))
+            encoder.write(Data($0))
         }
     }
 }
@@ -74,7 +73,7 @@ extension Int16: ScaleCodable {
     
     public func encode(in encoder: ScaleEncoder) throws {
         withUnsafeBytes(of: self.littleEndian) {
-            encoder.write(Array($0))
+            encoder.write(Data($0))
         }
     }
 }
@@ -88,7 +87,7 @@ extension UInt32: ScaleCodable {
     
     public func encode(in encoder: ScaleEncoder) throws {
         withUnsafeBytes(of: self.littleEndian) {
-            encoder.write(Array($0))
+            encoder.write(Data($0))
         }
     }
 }
@@ -102,7 +101,7 @@ extension Int32: ScaleCodable {
     
     public func encode(in encoder: ScaleEncoder) throws {
         withUnsafeBytes(of: self.littleEndian) {
-            encoder.write(Array($0))
+            encoder.write(Data($0))
         }
     }
 }
@@ -116,7 +115,7 @@ extension UInt64: ScaleCodable {
 
     public func encode(in encoder: ScaleEncoder) throws {
         withUnsafeBytes(of: self.littleEndian) {
-            encoder.write(Array($0))
+            encoder.write(Data($0))
         }
     }
 }
@@ -130,72 +129,7 @@ extension Int64: ScaleCodable {
 
     public func encode(in encoder: ScaleEncoder) throws {
         withUnsafeBytes(of: self.littleEndian) {
-            encoder.write(Array($0))
+            encoder.write(Data($0))
         }
     }
 }
-
-extension BigUInt: ScaleCodable {
-    public init(from decoder: ScaleDecoder) throws {
-        let bytes = try decoder.readOrError(count: 16, type: BigUInt.self)
-        self = BigUInt(Data(bytes.reversed()))
-    }
-
-    public func encode(in encoder: ScaleEncoder) throws {
-        guard self <= UINT128_MAX else {
-            throw SEncodingError.invalidValue(
-                self,
-                SEncodingError.Context(
-                    path: encoder.path,
-                    description: "Value is too big. Max value is 2^128-1. Use compact encoding."
-                )
-            )
-        }
-        self.serialize().withUnsafeBytes { bytes in
-            var data: [UInt8] = bytes.reversed()
-            data += Array<UInt8>(repeating: 0x00, count: 16 - data.count)
-            encoder.write(data)
-        }
-    }
-}
-
-extension BigInt: ScaleCodable {
-    public init(from decoder: ScaleDecoder) throws {
-        let buint = try decoder.decode(BigUInt.self)
-        self = buint > INT128_MAX
-            ? BigInt(sign: .minus, magnitude: (INT128_OF - BigInt(buint)).magnitude)
-            : BigInt(sign: .plus, magnitude: buint)
-    }
-
-    public func encode(in encoder: ScaleEncoder) throws {
-        switch sign {
-        case .minus:
-            guard self >= INT128_MIN else {
-                throw SEncodingError.invalidValue(
-                    self,
-                    SEncodingError.Context(
-                        path: encoder.path,
-                        description: "Value is too small. Min value is -2^127."
-                    )
-                )
-            }
-            try encoder.encode((INT128_OF + self).magnitude)
-        case .plus:
-            guard self <= INT128_MAX else {
-                throw SEncodingError.invalidValue(
-                    self,
-                    SEncodingError.Context(
-                        path: encoder.path,
-                        description: "Value is too big. Max value is 2^127-1. Use compact encoding."
-                    )
-                )
-            }
-            try encoder.encode(self.magnitude)
-        }
-    }
-}
-
-private let UINT128_MAX: BigUInt = BigUInt(2).power(128) - 1
-private let INT128_MAX: BigInt = BigInt(2).power(127) - 1
-private let INT128_MIN: BigInt = BigInt(-2).power(127)
-private let INT128_OF: BigInt = BigInt(2).power(128)

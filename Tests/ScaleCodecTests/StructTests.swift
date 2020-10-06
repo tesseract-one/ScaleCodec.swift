@@ -95,7 +95,7 @@ private struct ComplexStruct: Equatable, ScaleCodable {
         i8 = try decoder.decode(); i16 = try decoder.decode()
         i32 = try decoder.decode(); u32 = try decoder.decode()
         i64 = try decoder.decode(); u64 = try decoder.decode()
-        i128 = try decoder.decode(); u128 = try decoder.decode()
+        i128 = try decoder.decode(.b128); u128 = try decoder.decode(.b128)
         c8 = try decoder.decode(.compact); c16 = try decoder.decode(.compact)
         c64 = try decoder.decode(.compact); cb = try decoder.decode(.compact)
         enm = try decoder.decode(); earr = try decoder.decode()
@@ -107,8 +107,8 @@ private struct ComplexStruct: Equatable, ScaleCodable {
     func encode(in encoder: ScaleEncoder) throws {
         let sarr = carrarr.map { $0.map { SCompact($0) } }
         try encoder.encode(i8).encode(i16).encode(i32)
-            .encode(u32).encode(i64).encode(u64).encode(i128)
-            .encode(u128).encode(compact: c8).encode(compact: c16)
+            .encode(u32).encode(i64).encode(u64).encode(b128: i128)
+            .encode(b128: u128).encode(compact: c8).encode(compact: c16)
             .encode(compact: c64).encode(compact: cb).encode(enm)
             .encode(earr).encode(sarr).encode(strct)
     }
