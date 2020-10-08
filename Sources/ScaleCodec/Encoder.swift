@@ -18,6 +18,10 @@ public protocol ScaleEncoder {
     @discardableResult
     func encode(_ value: ScaleEncodable) throws -> ScaleEncoder
     func write(_ data: Data)
+    
+    // Make a copy of encoder preserving `path`.
+    // If full = True data will be copied too
+    func fork(full: Bool) -> ScaleEncoder
 }
 
 internal class SEncoder: ScaleEncoder {
@@ -28,9 +32,13 @@ internal class SEncoder: ScaleEncoder {
         return context.currentPath
     }
     
-    init() {
-        output = Data()
-        context = SContext()
+    convenience init() {
+        self.init(output: Data(), context: SContext())
+    }
+    
+    init(output: Data, context: SContext) {
+        self.output = output
+        self.context = context
     }
     
     @discardableResult
@@ -43,5 +51,10 @@ internal class SEncoder: ScaleEncoder {
     
     func write(_ data: Data) {
         output.append(data)
+    }
+    
+    func fork(full: Bool) -> ScaleEncoder {
+        let out = full ? Data(output) : Data()
+        return SEncoder(output: out, context: SContext(Array(context.currentPath)))
     }
 }
