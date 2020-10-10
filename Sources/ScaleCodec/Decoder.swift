@@ -11,7 +11,7 @@ public protocol ScaleDecodable {
     init(from decoder: ScaleDecoder) throws
 }
 
-public protocol ScaleDecoder {
+public protocol ScaleDecoder: class {
     var length: Int { get }
     var path: [String] { get }
     

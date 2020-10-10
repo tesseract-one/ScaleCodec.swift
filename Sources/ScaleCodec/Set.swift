@@ -7,15 +7,24 @@
 
 import Foundation
 
-extension Set: ScaleEncodable where Element: ScaleEncodable {
-    public func encode(in encoder: ScaleEncoder) throws {
-        try encoder.encode(Array(self))
+extension Set: ScaleContainerEncodable {
+    public typealias EElement = Element
+    
+    public func encode(in encoder: ScaleEncoder, writer: @escaping (EElement, ScaleEncoder) throws -> Void) throws {
+        let array = Array(self)
+        try array.encode(in: encoder, writer: writer)
     }
 }
 
-extension Set: ScaleDecodable where Element: ScaleDecodable {
-    public init(from decoder: ScaleDecoder) throws {
-        let array = try decoder.decode(Array<Element>.self)
+extension Set: ScaleEncodable where Element: ScaleEncodable {}
+
+extension Set: ScaleContainerDecodable {
+    public typealias DElement = Element
+    
+    public init(from decoder: ScaleDecoder, reader: @escaping (ScaleDecoder) throws -> DElement) throws {
+        let array = try Array<Element>(from: decoder, reader: reader)
         self = Set(array)
     }
 }
+
+extension Set: ScaleDecodable where Element: ScaleDecodable {}

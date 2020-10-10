@@ -18,7 +18,7 @@ public enum SEncodingError : Error {
         }
     }
     
-    case invalidValue(ScaleEncodable, SEncodingError.Context)
+    case invalidValue(Any, SEncodingError.Context)
 }
 
 public enum SDecodingError : Error {

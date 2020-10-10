@@ -7,28 +7,34 @@
 
 import Foundation
 
-extension Optional: ScaleEncodable where Wrapped: ScaleEncodable {
-    public func encode(in encoder: ScaleEncoder) throws {
-        if Wrapped.self == Bool.self {
+extension Optional: ScaleContainerEncodable {
+    public typealias EElement = Wrapped
+    
+    public func encode(in encoder: ScaleEncoder, writer: @escaping (EElement, ScaleEncoder) throws -> Void) throws {
+        if EElement.self == Bool.self {
             try encodeBool(encoder: encoder, self as! Bool?)
         } else {
             switch self {
             case .none: try encoder.encode(UInt8(0x00))
-            case .some(let val): try encoder.encode(UInt8(0x01)).encode(val)
+            case .some(let val): try writer(val, encoder.encode(UInt8(0x01)))
             }
         }
     }
 }
 
-extension Optional: ScaleDecodable where Wrapped: ScaleDecodable {
-    public init(from decoder: ScaleDecoder) throws {
-        if Wrapped.self == Bool.self {
-            self = try decodeBool(decoder: decoder) as! Wrapped?
+extension Optional: ScaleEncodable where Wrapped: ScaleEncodable {}
+
+extension Optional: ScaleContainerDecodable {
+    public typealias DElement = Wrapped
+    
+    public init(from decoder: ScaleDecoder, reader: @escaping (ScaleDecoder) throws -> DElement) throws {
+        if DElement.self == Bool.self {
+            self = try decodeBool(decoder: decoder) as! DElement?
         } else {
             let val = try decoder.decode(UInt8.self)
             switch val {
             case 0x00: self = .none
-            case 0x01: self = try .some(decoder.decode())
+            case 0x01: self = try .some(reader(decoder))
             default:
                 throw SDecodingError.dataCorrupted(
                     SDecodingError.Context(
@@ -40,6 +46,8 @@ extension Optional: ScaleDecodable where Wrapped: ScaleDecodable {
         }
     }
 }
+
+extension Optional: ScaleDecodable where Wrapped: ScaleDecodable {}
 
 private func encodeBool(encoder: ScaleEncoder, _ value: Bool?) throws {
     switch value {
