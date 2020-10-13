@@ -5,7 +5,7 @@ jobs:
     runs-on: macOS-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_11.4.app
       - name: Build and Test SPM
@@ -19,6 +19,6 @@ jobs:
       options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --security-opt apparmor=unconfined
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Build and Test
         run: swift test
