@@ -10,6 +10,10 @@ import Foundation
 
 private let SCOMPACT_MAX_VALUE = BigUInt(2).power(536) - 1
 
+public protocol CompactConvertible {
+    var compact: SCompact<BigUInt> { get }
+}
+
 public protocol CompactCodable: UnsignedInteger {
     static var compactMax: Self { get }
 }
@@ -20,6 +24,14 @@ public struct SCompact<T: CompactCodable>: Equatable, Hashable {
     public init(_ value: T) {
         self.value = value
     }
+}
+
+extension SCompact: CompactConvertible {
+    public var compact: SCompact<BigUInt> { SCompact<BigUInt>(BigUInt(value)) }
+}
+
+extension CompactCodable {
+    public var compact: SCompact<BigUInt> { SCompact<BigUInt>(BigUInt(self)) }
 }
 
 extension SCompact: ScaleEncodable {
@@ -133,11 +145,15 @@ extension UInt8: CompactCodable {
     }
 }
 
+extension UInt8: CompactConvertible {}
+
 extension UInt16: CompactCodable {
     public static var compactMax: UInt16 {
         return Self.max
     }
 }
+
+extension UInt16: CompactConvertible {}
 
 extension UInt32: CompactCodable {
     public static var compactMax: UInt32 {
@@ -145,14 +161,20 @@ extension UInt32: CompactCodable {
     }
 }
 
+extension UInt32: CompactConvertible {}
+
 extension UInt64: CompactCodable {
     public static var compactMax: UInt64 {
         return Self.max
     }
 }
 
+extension UInt64: CompactConvertible {}
+
 extension BigUInt: CompactCodable {
     public static var compactMax: BigUInt {
         return SCOMPACT_MAX_VALUE
     }
 }
+
+extension BigUInt: CompactConvertible {}
