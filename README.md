@@ -35,13 +35,13 @@ Setup instructions:
   Add this to the dependency section of your `Package.swift` manifest:
 
     ```Swift
-    .package(url: "https://github.com/tesseract-one/swift-scale-codec.git", from: "0.1.0")
+    .package(url: "https://github.com/tesseract-one/swift-scale-codec.git", from: "0.2.0")
     ```
 
 - **CocoaPods:** Put this in your `Podfile`:
 
     ```Ruby
-    pod 'ScaleCodec', '~> 0.1'
+    pod 'ScaleCodec', '~> 0.2'
     ```
 
 ## Usage Examples
@@ -66,7 +66,7 @@ assert(uint32 == UInt32.max)
 
 #### Compact encoding
 
-`UInt[8-64]` and  `BigUInt` types can be encoded with compact encoding. This allows `BigUInt` to store values up to `2^536-1`.
+`UInt[8-64]`, `SUInt[128-512]` and  `BigUInt` types can be encoded with compact encoding. This allows `BigUInt` to store values up to `2^536-1`.
 
 ScaleCodec has special wrapper type `SCompact` which encodes and decodes values in this format and two helper methods.
 
@@ -77,7 +77,7 @@ import ScaleCodec
 
 let data = Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01])
 
-let encoded = try SCALE.default.encode(compact: UInt64(1 << 32))
+let encoded = try SCALE.default.encode(UInt64(1 << 32), .compact)
 assert(encoded == data))
 
 let compact = try SCALE.default.decode(UInt64.self, .compact, from: data)
@@ -100,7 +100,7 @@ let data = Data([
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 ])
 
-let encoded = try SCALE.default.encode(b128: BigUInt(2).pow(128) - 1)
+let encoded = try SCALE.default.encode(BigUInt(2).pow(128) - 1, .b128)
 assert(encoded == data))
 
 let compact = try SCALE.default.decode(BigUInt.self, .b128, from: data)
@@ -108,7 +108,7 @@ assert(compact == BigUInt(2).pow(128) - 1)
 
 // without helper methods
 // let encoded = try SCALE.default.encode(SUInt256(BigUInt(2).pow(128) - 1))
-// let compact = try SCALE.default.decode(SUInt256.self, from: data).value
+// let compact = try SCALE.default.decode(SUInt256.self, from: data).int
 ```
 
 #### Data fixed encoding
@@ -120,7 +120,7 @@ import ScaleCodec
 
 let data = Data([0x07, 0x00, 0x00, 0x00, 0x00, 0x01]
 
-let encoded = try SCALE.default.encoder().encode(data, fixed: 6).output
+let encoded = try SCALE.default.encoder().encode(data, .fixed(6)).output
 assert(encoded == data))
 
 let decoded = try SCALE.default.decoder(data: encoded).decode(Data.self, .fixed(6))
@@ -152,7 +152,7 @@ import ScaleCodec
 
 let array: [UInt32] = [1, 2, 3, 4, 5]
 
-let data = try SCALE.default.encode(array, fixed: 5)
+let data = try SCALE.default.encode(array, .fixed(5))
 
 let decoded: [UInt32] = try SCALE.default.decode(.fixed(5), from: data)
 
@@ -223,8 +223,8 @@ enum Test: ScaleCodable {
   
   func encode(in encoder: ScaleEncoder) throws {
     switch self {
-    case .A(let str): try encoder.encode(enumCaseId: 0).encode(str)
-    case .B(let int, let str): try encoder.encode(enumCaseId: 1).encode(compact: int).encode(str)
+    case .A(let str): try encoder.encode(0, .enumCaseId).encode(str)
+    case .B(let int, let str): try encoder.encode(1, .enumCaseId).encode(int, .compact).encode(str)
     }
   }
 }
@@ -263,7 +263,7 @@ struct Test: ScaleCodable, Equatable {
   func encode(in encoder: ScaleEncoder) throws {
     try encoder
       .encode(var1)
-      .encode(compact: var2)
+      .encode(var2, .compact)
       .encode(var3.map { SCompact($0) })
   }
 }

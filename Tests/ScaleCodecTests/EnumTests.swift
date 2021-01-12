@@ -67,11 +67,11 @@ private enum TDataEnum: ScaleCodable, Equatable {
     
     func encode(in encoder: ScaleEncoder) throws {
         switch self {
-        case .c1(let uint): try encoder.encode(enumCaseId: 0).encode(compact: uint)
-        case .c2(let opt): try encoder.encode(enumCaseId: 1).encode(opt)
-        case .c3(let str, let int): try encoder.encode(enumCaseId: 2).encode(str).encode(int)
-        case .c4(let ostr): try encoder.encode(enumCaseId: 3).encode(ostr)
-        case .c5(let arr): try encoder.encode(enumCaseId: 4).encode(arr)
+        case .c1(let uint): try encoder.encode(0, .enumCaseId).encode(uint, .compact)
+        case .c2(let opt): try encoder.encode(1, .enumCaseId).encode(opt)
+        case .c3(let str, let int): try encoder.encode(2, .enumCaseId).encode(str).encode(int)
+        case .c4(let ostr): try encoder.encode(3, .enumCaseId).encode(ostr)
+        case .c5(let arr): try encoder.encode(4, .enumCaseId).encode(arr)
         }
     }
 }

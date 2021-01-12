@@ -28,7 +28,7 @@ public typealias ScaleFixed = ScaleFixedEncodable & ScaleFixedDecodable
 extension ScaleFixedEncodable {
     public func encode(in encoder: ScaleEncoder) throws {
         let values = try self.encode()
-        try encoder.encode(values, fixed: UInt(Self.fixedElementCount))
+        try encoder.encode(values, .fixed(UInt(Self.fixedElementCount)))
     }
 }
 
@@ -37,10 +37,6 @@ extension ScaleFixedDecodable {
         let values: [Element] = try decoder.decode(.fixed(UInt(Self.fixedElementCount)))
         try self.init(decoding: values)
     }
-}
-
-public enum ScaleFixedTypeMarker {
-    case fixed(UInt)
 }
 
 public protocol ScaleFixedDataEncodable: ScaleEncodable {
@@ -60,7 +56,7 @@ public typealias ScaleFixedData = ScaleFixedDataEncodable & ScaleFixedDataDecoda
 extension ScaleFixedDataEncodable {
     public func encode(in encoder: ScaleEncoder) throws {
         let data = try self.encode()
-        try encoder.encode(data, fixed: UInt(Self.fixedBytesCount))
+        try encoder.encode(data, .fixed(UInt(Self.fixedBytesCount)))
     }
 }
 

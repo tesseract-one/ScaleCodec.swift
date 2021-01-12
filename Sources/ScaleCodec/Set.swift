@@ -28,3 +28,17 @@ extension Set: ScaleContainerDecodable {
 }
 
 extension Set: ScaleDecodable where Element: ScaleDecodable {}
+
+extension Set: ScaleArrayInitializable {
+    public typealias IElement = Element
+    
+    public init(array: [IElement]) {
+        self.init(array)
+    }
+}
+
+extension Set: ScaleArrayConvertible {
+    public typealias CElement = Element
+    
+    public var asArray: [CElement] { Array(self) }
+}

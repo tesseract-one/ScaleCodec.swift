@@ -10,7 +10,7 @@ import Foundation
 extension CaseIterable where Self: Equatable & ScaleEncodable, Self.AllCases.Index == Int {
     public func encode(in encoder: ScaleEncoder) throws {
         let caseId = Self.allCases.firstIndex(of: self)! // It's safe.
-        try encoder.encode(enumCaseId: UInt8(caseId))
+        try encoder.encode(UInt8(caseId), .enumCaseId)
     }
 }
 
@@ -24,15 +24,19 @@ extension CaseIterable where Self: Equatable & ScaleDecodable, Self.AllCases.Ind
     }
 }
 
-public enum EnumCaseIdTypeMarker {
-    case enumCaseId
+extension ScaleCustomDecoderFactory where T == UInt8 {
+    public static var enumCaseId: ScaleCustomDecoderFactory {
+        ScaleCustomDecoderFactory { try $0.decode() }
+    }
+}
+
+extension ScaleCustomEncoderFactory where T == UInt8 {
+    public static var enumCaseId: ScaleCustomEncoderFactory {
+        ScaleCustomEncoderFactory { try $0.encode($1) }
+    }
 }
 
 extension ScaleDecoder {
-    public func decode(_ marker: EnumCaseIdTypeMarker) throws -> UInt8 {
-        return try self.decode()
-    }
-    
     public func enumCaseError(for index: UInt8) -> SDecodingError {
         return SDecodingError.dataCorrupted(
             SDecodingError.Context(
@@ -40,12 +44,5 @@ extension ScaleDecoder {
                 description: "Wrong case index: \(index)"
             )
         )
-    }
-}
-
-extension ScaleEncoder {
-    @discardableResult
-    public func encode(enumCaseId: UInt8) throws -> ScaleEncoder {
-        return try self.encode(enumCaseId)
     }
 }

@@ -107,9 +107,9 @@ private struct ComplexStruct: Equatable, ScaleCodable {
     func encode(in encoder: ScaleEncoder) throws {
         let sarr = carrarr.map { $0.map { SCompact($0) } }
         try encoder.encode(i8).encode(i16).encode(i32)
-            .encode(u32).encode(i64).encode(u64).encode(b128: i128)
-            .encode(b128: u128).encode(compact: c8).encode(compact: c16)
-            .encode(compact: c64).encode(compact: cb).encode(enm)
+            .encode(u32).encode(i64).encode(u64).encode(i128, .b128)
+            .encode(u128, .b128).encode(c8, .compact).encode(c16, .compact)
+            .encode(c64, .compact).encode(cb, .compact).encode(enm)
             .encode(earr).encode(sarr).encode(strct)
     }
     
@@ -150,7 +150,7 @@ private struct Wrapper: ScaleCodable, Equatable {
     }
     
     func encode(in encoder: ScaleEncoder) throws {
-        try encoder.encode(compact: wrapped)
+        try encoder.encode(wrapped, .compact)
     }
 }
 
@@ -169,8 +169,8 @@ private enum TDataEnum: ScaleCodable, Equatable {
     
     func encode(in encoder: ScaleEncoder) throws {
         switch self {
-        case .c1(let str): try encoder.encode(enumCaseId: 0).encode(str)
-        case .c2(let int, let obool): try encoder.encode(enumCaseId: 1).encode(int).encode(obool)
+        case .c1(let str): try encoder.encode(0, .enumCaseId).encode(str)
+        case .c2(let int, let obool): try encoder.encode(1, .enumCaseId).encode(int).encode(obool)
         }
     }
 }

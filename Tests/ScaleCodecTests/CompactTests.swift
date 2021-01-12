@@ -35,12 +35,12 @@ final class CompactTests: XCTestCase {
             (BigUInt.compactMax, Data(repeating: 0xff, count: 68).hex)
         ]
         runTests(tests)
-        XCTAssertThrowsError(try SCALE.default.encode(compact: BigUInt(2).power(537)))
+        XCTAssertThrowsError(try SCALE.default.encode(BigUInt(2).power(537), .compact))
     }
     
     func testTopLevelAPI() {
         do {
-            let enc = try SCALE.default.encode(compact: UInt32.max)
+            let enc = try SCALE.default.encode(UInt32.max, .compact)
             XCTAssertEqual(enc.hex, "03 ff ff ff ff")
             let dec1: UInt32 = try SCALE.default.decode(.compact, from: enc)
             let dec2 = try SCALE.default.decode(UInt32.self, .compact, from: enc)

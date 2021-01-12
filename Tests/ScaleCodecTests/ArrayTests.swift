@@ -49,12 +49,12 @@ final class ArrayTests: XCTestCase {
         let value: [UInt16] = [1, 2, 3, 0, UInt16.max]
         let encoded = "01 00 02 00 03 00 00 00 ff ff"
         do {
-            let data = try SCALE.default.encode(value, fixed: 5)
+            let data = try SCALE.default.encode(value, .fixed(5))
             XCTAssertEqual(data.hex, encoded)
             let decoded = try SCALE.default.decode(Array<UInt16>.self, .fixed(5), from: data)
             XCTAssertEqual(decoded, value)
         } catch { XCTFail("\(error)") }
-        XCTAssertThrowsError(try SCALE.default.encode(value, fixed: 3))
+        XCTAssertThrowsError(try SCALE.default.encode(value, .fixed(3)))
         XCTAssertThrowsError(try SCALE.default.decode(Array<UInt16>.self, .fixed(6), from: encoded.hexData!))
     }
 }

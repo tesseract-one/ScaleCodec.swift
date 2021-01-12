@@ -135,9 +135,9 @@ private enum TDataEnum: ScaleCodable, Equatable {
     
     func encode(in encoder: ScaleEncoder) throws {
         switch self {
-        case .c1(let int): try encoder.encode(enumCaseId: 0).encode(int)
-        case .c2(let buint): try encoder.encode(enumCaseId: 1).encode(compact: buint)
-        case .c3(let enm): try encoder.encode(enumCaseId: 2).encode(enm)
+        case .c1(let int): try encoder.encode(0, .enumCaseId).encode(int)
+        case .c2(let buint): try encoder.encode(1, .enumCaseId).encode(buint, .compact)
+        case .c3(let enm): try encoder.encode(2, .enumCaseId).encode(enm)
         }
     }
 }
