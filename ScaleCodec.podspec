@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'ScaleCodec'
-  s.version          = '0.2.0'
+  s.version          = '0.2.1'
   s.summary          = 'SCALE codec implementation for Swift language'
 
   s.description      = <<-DESC
@@ -18,7 +18,7 @@ SCALE codec implementation for Swift language. Supports all SCALE standard types
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
   
-  s.swift_versions = ['5', '5.1', '5.2']
+  s.swift_versions = ['5', '5.1', '5.2', '5.3', '5.4']
 
   s.module_name = 'ScaleCodec'
 

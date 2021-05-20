@@ -11,7 +11,7 @@ public protocol ScaleEncodable {
     func encode(in encoder: ScaleEncoder) throws;
 }
 
-public protocol ScaleEncoder: class {
+public protocol ScaleEncoder: AnyObject {
     var path: [String] { get }
     var output: Data { get }
     
