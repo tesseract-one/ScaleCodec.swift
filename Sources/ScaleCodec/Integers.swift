@@ -28,35 +28,10 @@ extension Bool: ScaleCodable {
     }
 }
 
-extension UInt8: ScaleFixedData {
-    public init(decoding data: Data) throws {
-        self = data.first!
-    }
-    
-    public func encode() throws -> Data {
-        return Data(repeating: self, count: 1)
-    }
-    
-    public static var fixedBytesCount: Int = 1
-}
-
-extension Int8: ScaleFixedData {
-    public init(decoding data: Data) throws {
-        self = Int8(bitPattern: data.first!)
-    }
-    
-    public func encode() throws -> Data {
-        let uint = UInt8(bitPattern: self)
-        return Data(repeating: uint, count: 1)
-    }
-    
-    public static var fixedBytesCount: Int = 1
-}
-
-extension UInt16: ScaleFixedData {
+extension FixedWidthInteger where Self: ScaleFixedData {
     public init(decoding data: Data) throws {
         self = data.withUnsafeBytes {
-            $0.load(as: UInt16.self).littleEndian
+            $0.load(as: Self.self).littleEndian
         }
     }
     
@@ -64,75 +39,14 @@ extension UInt16: ScaleFixedData {
         return withUnsafeBytes(of: self.littleEndian) { Data($0) }
     }
     
-    public static var fixedBytesCount: Int = 2
+    public static var fixedBytesCount: Int { Self.bitWidth / 8 }
 }
 
-extension Int16: ScaleFixedData {
-    public init(decoding data: Data) throws {
-        self = data.withUnsafeBytes {
-            $0.load(as: Int16.self).littleEndian
-        }
-    }
-    
-    public func encode() throws -> Data {
-        return withUnsafeBytes(of: self.littleEndian) { Data($0) }
-    }
-    
-    public static var fixedBytesCount: Int = 2
-}
-
-extension UInt32: ScaleFixedData {
-    public init(decoding data: Data) throws {
-        self = data.withUnsafeBytes {
-            $0.load(as: UInt32.self).littleEndian
-        }
-    }
-    
-    public func encode() throws -> Data {
-        return withUnsafeBytes(of: self.littleEndian) { Data($0) }
-    }
-    
-    public static var fixedBytesCount: Int = 4
-}
-
-extension Int32: ScaleFixedData {
-    public init(decoding data: Data) throws {
-        self = data.withUnsafeBytes {
-            $0.load(as: Int32.self).littleEndian
-        }
-    }
-    
-    public func encode() throws -> Data {
-        return withUnsafeBytes(of: self.littleEndian) { Data($0) }
-    }
-    
-    public static var fixedBytesCount: Int = 4
-}
-
-extension UInt64: ScaleFixedData {
-    public init(decoding data: Data) throws {
-        self = data.withUnsafeBytes {
-            $0.load(as: UInt64.self).littleEndian
-        }
-    }
-    
-    public func encode() throws -> Data {
-        return withUnsafeBytes(of: self.littleEndian) { Data($0) }
-    }
-    
-    public static var fixedBytesCount: Int = 8
-}
-
-extension Int64: ScaleFixedData {
-    public init(decoding data: Data) throws {
-        self = data.withUnsafeBytes {
-            $0.load(as: Int64.self).littleEndian
-        }
-    }
-    
-    public func encode() throws -> Data {
-        return withUnsafeBytes(of: self.littleEndian) { Data($0) }
-    }
-    
-    public static var fixedBytesCount: Int = 8
-}
+extension UInt8: ScaleFixedData {}
+extension Int8: ScaleFixedData {}
+extension UInt16: ScaleFixedData {}
+extension Int16: ScaleFixedData {}
+extension UInt32: ScaleFixedData {}
+extension Int32: ScaleFixedData {}
+extension UInt64: ScaleFixedData {}
+extension Int64: ScaleFixedData {}

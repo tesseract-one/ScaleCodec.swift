@@ -151,56 +151,27 @@ extension SCompact {
     }
 }
 
-extension UnsignedInteger where Self: CompactCodable {
+extension UnsignedInteger where Self: CompactCodable, Self.UI == Self {
     public init(uintValue: UI) {
         self.init(uintValue)
     }
     
-    public var int: UI { self as! UI }
+    public var int: UI { self }
 }
 
-extension UInt8: CompactCodable {
-    public typealias UI = UInt8
-    
+extension FixedWidthInteger where Self: CompactCodable, Self.UI == Self {
     public static var compactMax: UI {
         return Self.max
     }
 }
 
-extension UInt8: CompactConvertible {}
-
-extension UInt16: CompactCodable {
-    public typealias UI = UInt16
-    
-    public static var compactMax: UI {
-        return Self.max
-    }
-}
-
-extension UInt16: CompactConvertible {}
-
-extension UInt32: CompactCodable {
-    public typealias UI = UInt32
-    
-    public static var compactMax: UI {
-        return Self.max
-    }
-}
-
-extension UInt32: CompactConvertible {}
-
-extension UInt64: CompactCodable {
-    public typealias UI = UInt64
-    
-    public static var compactMax: UI {
-        return Self.max
-    }
-}
-
-extension UInt64: CompactConvertible {}
+extension UInt8: CompactCodable, CompactConvertible {}
+extension UInt16: CompactCodable, CompactConvertible {}
+extension UInt32: CompactCodable, CompactConvertible {}
+extension UInt64: CompactCodable, CompactConvertible {}
 
 extension BigUInt: CompactCodable {
-    public typealias UI = BigUInt
+    public typealias UI = Self
     
     public static var compactMax: UI {
         return SCOMPACT_MAX_VALUE

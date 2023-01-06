@@ -8,18 +8,33 @@
 import Foundation
 import BigInt
 
-public protocol ScaleFixedSignedInteger: ScaleFixedData, ExpressibleByIntegerLiteral {
+public protocol ScaleFixedSignedInteger: ScaleFixedData, ExpressibleByIntegerLiteral
+    where IntegerLiteralType: SignedInteger
+{
     var int: BigInt { get }
     
     init(bigInt int: BigInt) throws
     
     static var bitWidth: Int { get }
     static var overflowValue: BigInt { get }
-    static var max: BigInt { get }
-    static var min: BigInt { get }
+    static var biMax: BigInt { get }
+    static var biMin: BigInt { get }
 }
 
 extension ScaleFixedSignedInteger {
+    public static func checkSizeBounds(_ value: BigInt) throws {
+        guard value <= Self.biMax && value >= Self.biMin else {
+            throw ScaleFixedIntegerError.overflow(
+                bitWidth: Self.bitWidth,
+                value: value,
+                message: "Can't store \(value) in \(Self.bitWidth)bit signed integer")
+        }
+    }
+}
+
+public protocol ScaleFixedSignedIntegerImpl: ScaleFixedSignedInteger, Hashable, Equatable {}
+
+extension ScaleFixedSignedIntegerImpl {
     public init(_ value: BigInt) {
         try! self.init(bigInt: value)
     }
@@ -44,7 +59,7 @@ extension ScaleFixedSignedInteger {
         var data: Data = data
         data.reverse()
         let uint = BigUInt(data)
-        let int = uint > Self.max
+        let int = uint > Self.biMax
             ? BigInt(sign: .minus, magnitude: (Self.overflowValue - BigInt(uint)).magnitude)
             : BigInt(sign: .plus, magnitude: uint)
         try self.init(bigInt: int)
@@ -64,15 +79,6 @@ extension ScaleFixedSignedInteger {
         }
     }
     
-    public static func checkSizeBounds(_ value: BigInt) throws {
-        guard value <= Self.max && value >= Self.min else {
-            throw ScaleFixedIntegerError.overflow(
-                bitWidth: Self.bitWidth,
-                value: value,
-                message: "Can't store \(value) in \(Self.bitWidth)bit signed integer")
-        }
-    }
-    
     public static var fixedBytesCount: Int { return Self.bitWidth / 8 }
 }
 
@@ -80,7 +86,7 @@ public enum ScaleFixedIntegerError: Error {
     case overflow(bitWidth: Int, value: BigInt, message: String)
 }
 
-public struct SInt128: ScaleFixedSignedInteger, Equatable, Hashable {
+public struct SInt128: ScaleFixedSignedIntegerImpl {
     public typealias IntegerLiteralType = Int64
     
     public let int: BigInt
@@ -91,15 +97,19 @@ public struct SInt128: ScaleFixedSignedInteger, Equatable, Hashable {
     }
     
     public static let bitWidth: Int = 128
-    public static let max: BigInt = BigInt(2).power(127) - 1
-    public static let min: BigInt = BigInt(-2).power(127)
+    public static let biMax: BigInt = BigInt(2).power(127) - 1
+    public static let biMin: BigInt = BigInt(-2).power(127)
     public static let overflowValue: BigInt = BigInt(2).power(128)
 }
 
-public struct SInt256: ScaleFixedSignedInteger, Equatable, Hashable {
+public struct SInt256: ScaleFixedSignedIntegerImpl {
     public typealias IntegerLiteralType = Int64
     
     public let int: BigInt
+    
+    public init(_ value: BigInt) {
+        try! self.init(bigInt: value)
+    }
     
     public init(bigInt int: BigInt) throws {
         try Self.checkSizeBounds(int)
@@ -107,15 +117,19 @@ public struct SInt256: ScaleFixedSignedInteger, Equatable, Hashable {
     }
     
     public static let bitWidth: Int = 256
-    public static let max: BigInt = BigInt(2).power(255) - 1
-    public static let min: BigInt = BigInt(-2).power(255)
+    public static let biMax: BigInt = BigInt(2).power(255) - 1
+    public static let biMin: BigInt = BigInt(-2).power(255)
     public static let overflowValue: BigInt = BigInt(2).power(256)
 }
 
-public struct SInt512: ScaleFixedSignedInteger, Equatable, Hashable {
+public struct SInt512: ScaleFixedSignedIntegerImpl {
     public typealias IntegerLiteralType = Int64
     
     public let int: BigInt
+    
+    public init(_ value: BigInt) {
+        try! self.init(bigInt: value)
+    }
     
     public init(bigInt int: BigInt) throws {
         try Self.checkSizeBounds(int)
@@ -123,8 +137,8 @@ public struct SInt512: ScaleFixedSignedInteger, Equatable, Hashable {
     }
     
     public static let bitWidth: Int = 512
-    public static let max: BigInt = BigInt(2).power(511) - 1
-    public static let min: BigInt = BigInt(-2).power(511)
+    public static let biMax: BigInt = BigInt(2).power(511) - 1
+    public static let biMin: BigInt = BigInt(-2).power(511)
     public static let overflowValue: BigInt = BigInt(2).power(512)
 }
 
@@ -169,3 +183,21 @@ extension ScaleCustomDecoderFactory where T == BigInt {
         ScaleCustomDecoderFactory { try $0.decode(SInt512.self).int }
     }
 }
+
+extension SignedInteger where Self: ScaleFixedSignedInteger & FixedWidthInteger {
+    public var int: BigInt { BigInt(self) }
+    
+    public init(bigInt int: BigInt) throws {
+        try Self.checkSizeBounds(int)
+        self.init(int)
+    }
+    
+    public static var overflowValue: BigInt { biMax + 1 }
+    public static var biMax: BigInt { BigInt(Self.max) }
+    public static var biMin: BigInt { BigInt(Self.min) }
+}
+
+extension Int8: ScaleFixedSignedInteger {}
+extension Int16: ScaleFixedSignedInteger {}
+extension Int32: ScaleFixedSignedInteger {}
+extension Int64: ScaleFixedSignedInteger {}

@@ -10,15 +10,19 @@ import BigInt
 
 public protocol ScaleFixedUnsignedInteger:
     ScaleFixedData, CompactConvertible, CompactCodable, ExpressibleByIntegerLiteral
+    where IntegerLiteralType: UnsignedInteger
 {
     init(bigUInt int: BigUInt) throws
     
     static var bitWidth: Int { get }
-    static var max: BigUInt { get }
-    static var min: BigUInt { get }
+    static var biMax: BigUInt { get }
+    static var biMin: BigUInt { get }
 }
 
-extension ScaleFixedUnsignedInteger where UI == BigUInt {
+public protocol ScaleFixedUnsignedIntegerImpl: Equatable, Hashable, ScaleFixedUnsignedInteger
+    where UI == BigUInt {}
+
+extension ScaleFixedUnsignedIntegerImpl {
     public init(_ int: UI) {
         try! self.init(bigUInt: int)
     }
@@ -74,20 +78,22 @@ extension ScaleFixedUnsignedInteger where UI == BigUInt {
         }
     }
     
+    public static var fixedBytesCount: Int { Self.bitWidth / 8 }
+    public static var compactMax: UI { Self.biMax }
+}
+
+extension ScaleFixedUnsignedInteger {
     public static func checkSizeBounds(_ value: BigUInt) throws {
-        guard value <= Self.max else {
+        guard value <= Self.biMax else {
             throw ScaleFixedIntegerError.overflow(
                 bitWidth: Self.bitWidth,
                 value: BigInt(value),
                 message: "Can't store \(value) in \(Self.bitWidth)bit unsigned integer")
         }
     }
-    
-    public static var fixedBytesCount: Int { return Self.bitWidth / 8 }
-    public static var compactMax: UI { Self.max }
 }
 
-public struct SUInt128: ScaleFixedUnsignedInteger, Equatable, Hashable {
+public struct SUInt128: ScaleFixedUnsignedIntegerImpl {
     public typealias UI = BigUInt
     public typealias IntegerLiteralType = UInt64
     
@@ -99,11 +105,11 @@ public struct SUInt128: ScaleFixedUnsignedInteger, Equatable, Hashable {
     }
     
     public static let bitWidth: Int = 128
-    public static let max: BigUInt = BigUInt(2).power(128) - 1
-    public static let min: BigUInt = BigUInt(0)
+    public static let biMax: BigUInt = BigUInt(2).power(128) - 1
+    public static let biMin: BigUInt = BigUInt(0)
 }
 
-public struct SUInt256: ScaleFixedUnsignedInteger, Equatable, Hashable {
+public struct SUInt256: ScaleFixedUnsignedIntegerImpl {
     public typealias UI = BigUInt
     public typealias IntegerLiteralType = UInt64
     
@@ -115,11 +121,11 @@ public struct SUInt256: ScaleFixedUnsignedInteger, Equatable, Hashable {
     }
     
     public static let bitWidth: Int = 256
-    public static let max: BigUInt = BigUInt(2).power(256) - 1
-    public static let min: BigUInt = BigUInt(0)
+    public static let biMax: BigUInt = BigUInt(2).power(256) - 1
+    public static let biMin: BigUInt = BigUInt(0)
 }
 
-public struct SUInt512: ScaleFixedUnsignedInteger, Equatable, Hashable {
+public struct SUInt512: ScaleFixedUnsignedIntegerImpl {
     public typealias UI = BigUInt
     public typealias IntegerLiteralType = UInt64
     
@@ -131,8 +137,8 @@ public struct SUInt512: ScaleFixedUnsignedInteger, Equatable, Hashable {
     }
     
     public static let bitWidth: Int = 512
-    public static let max: BigUInt = BigUInt(2).power(512) - 1
-    public static let min: BigUInt = BigUInt(0)
+    public static let biMax: BigUInt = BigUInt(2).power(512) - 1
+    public static let biMin: BigUInt = BigUInt(0)
 }
 
 extension BinaryInteger {
@@ -176,3 +182,18 @@ extension ScaleCustomDecoderFactory where T == BigUInt {
         ScaleCustomDecoderFactory { try $0.decode(SUInt512.self).int }
     }
 }
+
+extension UnsignedInteger where Self: ScaleFixedUnsignedInteger & FixedWidthInteger {
+    public init(bigUInt int: BigUInt) throws {
+        try Self.checkSizeBounds(int)
+        self.init(int)
+    }
+    
+    public static var biMax: BigUInt { BigUInt(Self.max) }
+    public static var biMin: BigUInt { BigUInt(Self.min) }
+}
+
+extension UInt8: ScaleFixedUnsignedInteger {}
+extension UInt16: ScaleFixedUnsignedInteger {}
+extension UInt32: ScaleFixedUnsignedInteger {}
+extension UInt64: ScaleFixedUnsignedInteger {}

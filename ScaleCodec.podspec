@@ -18,7 +18,7 @@ SCALE codec implementation for Swift language. Supports all SCALE standard types
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
   
-  s.swift_versions = ['5', '5.1', '5.2', '5.3', '5.4']
+  s.swift_version = '5'
 
   s.module_name = 'ScaleCodec'
 

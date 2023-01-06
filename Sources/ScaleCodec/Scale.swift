@@ -24,11 +24,11 @@ open class SCALE {
 }
 
 extension SCALE {
-    open func encode<T: ScaleEncodable>(_ value: T) throws -> Data {
+    public func encode<T: ScaleEncodable>(_ value: T) throws -> Data {
         return try encoder().encode(value).output
     }
     
-    open func decode<T: ScaleDecodable>(from data: Data) throws -> T {
+    public func decode<T: ScaleDecodable>(from data: Data) throws -> T {
         return try decoder(data: data).decode()
     }
     
