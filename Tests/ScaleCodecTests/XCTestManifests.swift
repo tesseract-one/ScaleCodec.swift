@@ -20,8 +20,8 @@ extension CompactTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__CompactTests = [
-        ("testBigUInt", testBigUInt),
         ("testTopLevelAPI", testTopLevelAPI),
+        ("testUInt1024", testUInt1024),
         ("testUInt128", testUInt128),
         ("testUInt16", testUInt16),
         ("testUInt32", testUInt32),

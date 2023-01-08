@@ -6,198 +6,39 @@
 //
 
 import Foundation
-import BigInt
+#if !COCOAPODS
+@_exported import DoubleWidth
+#endif
 
-public protocol ScaleFixedSignedInteger: ScaleFixedData, ExpressibleByIntegerLiteral
-    where IntegerLiteralType: SignedInteger
-{
-    var int: BigInt { get }
-    
-    init(bigInt int: BigInt) throws
-    
-    static var bitWidth: Int { get }
-    static var overflowValue: BigInt { get }
-    static var biMax: BigInt { get }
-    static var biMin: BigInt { get }
-}
+// This part uses DoubleWidth from Apple Swift stdlib prototypes.
+// Nested types will have performance drop, so avoid using them if not needed.
+// Int128/UInt128 should be good. Int1024/UInt1024 is really slow.
 
-extension ScaleFixedSignedInteger {
-    public static func checkSizeBounds(_ value: BigInt) throws {
-        guard value <= Self.biMax && value >= Self.biMin else {
-            throw ScaleFixedIntegerError.overflow(
-                bitWidth: Self.bitWidth,
-                value: value,
-                message: "Can't store \(value) in \(Self.bitWidth)bit signed integer")
-        }
-    }
-}
+public typealias Int128 = DoubleWidth<Int64>
+public typealias Int256 = DoubleWidth<Int128>
+public typealias Int512 = DoubleWidth<Int256>
+public typealias Int1024 = DoubleWidth<Int512>
 
-public protocol ScaleFixedSignedIntegerImpl: ScaleFixedSignedInteger, Hashable, Equatable {}
+public typealias UInt128 = DoubleWidth<UInt64>
+public typealias UInt256 = DoubleWidth<UInt128>
+public typealias UInt512 = DoubleWidth<UInt256>
+public typealias UInt1024 = DoubleWidth<UInt512>
 
-extension ScaleFixedSignedIntegerImpl {
-    public init(_ value: BigInt) {
-        try! self.init(bigInt: value)
+extension DoubleWidth: CompactCodable where Self: UnsignedInteger {
+    public typealias UI = Self
+    
+    public static var compactBitWidth: Int {
+        Self.bitWidth >= SCOMPACT_BIT_WIDTH ? SCOMPACT_BIT_WIDTH : Self.bitWidth
     }
     
-    public init?(exactly value: BigInt) {
-        do {
-            try self.init(bigInt: value)
-        } catch {
-            return nil
-        }
-    }
-    
-    public init<T>(_ source: T) where T : BinaryInteger {
-        self.init(BigInt(source))
-    }
-    
-    public init(integerLiteral value: Int64) {
-        self.init(BigInt(integerLiteral: value))
-    }
-    
-    public init(decoding data: Data) throws {
-        var data: Data = data
-        data.reverse()
-        let uint = BigUInt(data)
-        let int = uint > Self.biMax
-            ? BigInt(sign: .minus, magnitude: (Self.overflowValue - BigInt(uint)).magnitude)
-            : BigInt(sign: .plus, magnitude: uint)
-        try self.init(bigInt: int)
-    }
-    
-    public func encode() throws -> Data {
-        var buint: BigUInt
-        switch int.sign {
-        case .plus: buint = int.magnitude
-        case .minus: buint = (Self.overflowValue + int).magnitude
-        }
-        return buint.serialize().withUnsafeBytes { bytes in
-            var data = Data(bytes)
-            data.reverse()
-            data += Data(repeating: 0x00, count: Self.fixedBytesCount - data.count)
-            return data
-        }
-    }
-    
-    public static var fixedBytesCount: Int { return Self.bitWidth / 8 }
-}
-
-public enum ScaleFixedIntegerError: Error {
-    case overflow(bitWidth: Int, value: BigInt, message: String)
-}
-
-public struct SInt128: ScaleFixedSignedIntegerImpl {
-    public typealias IntegerLiteralType = Int64
-    
-    public let int: BigInt
-    
-    public init(bigInt int: BigInt) throws {
-        try Self.checkSizeBounds(int)
-        self.int = int
-    }
-    
-    public static let bitWidth: Int = 128
-    public static let biMax: BigInt = BigInt(2).power(127) - 1
-    public static let biMin: BigInt = BigInt(-2).power(127)
-    public static let overflowValue: BigInt = BigInt(2).power(128)
-}
-
-public struct SInt256: ScaleFixedSignedIntegerImpl {
-    public typealias IntegerLiteralType = Int64
-    
-    public let int: BigInt
-    
-    public init(_ value: BigInt) {
-        try! self.init(bigInt: value)
-    }
-    
-    public init(bigInt int: BigInt) throws {
-        try Self.checkSizeBounds(int)
-        self.int = int
-    }
-    
-    public static let bitWidth: Int = 256
-    public static let biMax: BigInt = BigInt(2).power(255) - 1
-    public static let biMin: BigInt = BigInt(-2).power(255)
-    public static let overflowValue: BigInt = BigInt(2).power(256)
-}
-
-public struct SInt512: ScaleFixedSignedIntegerImpl {
-    public typealias IntegerLiteralType = Int64
-    
-    public let int: BigInt
-    
-    public init(_ value: BigInt) {
-        try! self.init(bigInt: value)
-    }
-    
-    public init(bigInt int: BigInt) throws {
-        try Self.checkSizeBounds(int)
-        self.int = int
-    }
-    
-    public static let bitWidth: Int = 512
-    public static let biMax: BigInt = BigInt(2).power(511) - 1
-    public static let biMin: BigInt = BigInt(-2).power(511)
-    public static let overflowValue: BigInt = BigInt(2).power(512)
-}
-
-extension BinaryInteger {
-    public init<I: ScaleFixedSignedInteger>(_ source: I) {
-        self.init(source.int)
-    }
-    
-    public init<I: ScaleFixedSignedInteger>(truncatingIfNeeded source: I) {
-        self.init(truncatingIfNeeded: source.int)
-    }
-    
-    public init<I: ScaleFixedSignedInteger>(clamping source: I) {
-        self.init(clamping: source.int)
-    }
-    
-    public init?<I: ScaleFixedSignedInteger>(exactly source: I) {
-        self.init(exactly: source.int)
+    public static var compactMax: UI {
+        Self.bitWidth >= SCOMPACT_BIT_WIDTH ? UI(SCOMPACT_MAX_VALUE) : Self.max
     }
 }
 
-extension ScaleCustomEncoderFactory where T == BigInt {
-    public static var b128: ScaleCustomEncoderFactory {
-        ScaleCustomEncoderFactory { try $0.encode(SInt128(bigInt: $1)) }
-    }
-    public static var b256: ScaleCustomEncoderFactory {
-        ScaleCustomEncoderFactory { try $0.encode(SInt256(bigInt: $1)) }
-    }
-    public static var b512: ScaleCustomEncoderFactory {
-        ScaleCustomEncoderFactory { try $0.encode(SInt512(bigInt: $1)) }
-    }
-}
+extension DoubleWidth: CompactConvertible where Self: UnsignedInteger {}
 
-extension ScaleCustomDecoderFactory where T == BigInt {
-    public static var b128: ScaleCustomDecoderFactory {
-        ScaleCustomDecoderFactory { try $0.decode(SInt128.self).int }
-    }
-    public static var b256: ScaleCustomDecoderFactory {
-        ScaleCustomDecoderFactory { try $0.decode(SInt256.self).int }
-    }
-    public static var b512: ScaleCustomDecoderFactory {
-        ScaleCustomDecoderFactory { try $0.decode(SInt512.self).int }
-    }
-}
+extension DoubleWidth: ScaleFixedData {}
 
-extension SignedInteger where Self: ScaleFixedSignedInteger & FixedWidthInteger {
-    public var int: BigInt { BigInt(self) }
-    
-    public init(bigInt int: BigInt) throws {
-        try Self.checkSizeBounds(int)
-        self.init(int)
-    }
-    
-    public static var overflowValue: BigInt { biMax + 1 }
-    public static var biMax: BigInt { BigInt(Self.max) }
-    public static var biMin: BigInt { BigInt(Self.min) }
-}
-
-extension Int8: ScaleFixedSignedInteger {}
-extension Int16: ScaleFixedSignedInteger {}
-extension Int32: ScaleFixedSignedInteger {}
-extension Int64: ScaleFixedSignedInteger {}
+private let SCOMPACT_BIT_WIDTH: Int = 536
+private let SCOMPACT_MAX_VALUE = (UInt1024(1) << SCOMPACT_BIT_WIDTH) - 1

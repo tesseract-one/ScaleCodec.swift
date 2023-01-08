@@ -22,12 +22,11 @@ SCALE codec implementation for Swift language. Supports all SCALE standard types
 
   s.module_name = 'ScaleCodec'
 
-  s.source_files = 'Sources/ScaleCodec/**/*.swift'
-  
-  s.dependency 'BigInt', '~> 5.2'
+  s.source_files = 'Sources/ScaleCodec/**/*.swift', 'Sources/DoubleWidth/*.swift'
   
   s.test_spec 'Tests' do |test_spec|
     test_spec.platforms = {:ios => '9.0', :osx => '10.10', :tvos => '9.0'}
-    test_spec.source_files = 'Tests/ScaleCodecTests/**/*.swift'
+    test_spec.source_files = 'Tests/ScaleCodecTests/**/*.swift', 'Tests/DoubleWidthTests/**/*.swift'
+    test_spec.dependency 'CwlPreconditionTesting', '~> 2.1.0'
   end
 end

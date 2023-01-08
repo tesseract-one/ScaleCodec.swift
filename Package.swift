@@ -3,6 +3,18 @@
 
 import PackageDescription
 
+#if os(Linux) || os(tvOS)
+let doubleWidthTestTarget: Target = .testTarget(
+    name: "DoubleWidthTests",
+    dependencies: ["ScaleCodec", "CwlPosixPreconditionTesting"]
+)
+#else
+let doubleWidthTestTarget: Target = .testTarget(
+    name: "DoubleWidthTests",
+    dependencies: ["ScaleCodec", "CwlPreconditionTesting"]
+)
+#endif
+
 let package = Package(
     name: "swift-scale-codec",
     products: [
@@ -12,17 +24,23 @@ let package = Package(
             targets: ["ScaleCodec"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/mattgallagher/CwlPreconditionTesting.git", from: "2.1.0")
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/attaswift/BigInt.git", from: "5.2.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "ScaleCodec",
-            dependencies: ["BigInt"]),
+            dependencies: ["DoubleWidth"]),
+        .target(
+            name: "DoubleWidth",
+            dependencies: []),
         .testTarget(
             name: "ScaleCodecTests",
             dependencies: ["ScaleCodec"]),
+        doubleWidthTestTarget
     ]
 )
+
+

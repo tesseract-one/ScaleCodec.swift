@@ -31,8 +31,8 @@ final class StructTests: XCTestCase {
     func testComplexStuct() {
         let strct1 = ComplexStruct(
             i8: Int8.min, i16: Int16.min, i32: Int32.min, u32: UInt32.max, i64: Int64.min,
-            u64: UInt64.max, i128: BigInt(-2).power(127), u128: BigUInt(2).power(128) - 1,
-            c8: UInt8.max, c16: UInt16.max, c64: UInt64.max, cb: BigUInt(2).power(128) - 1,
+            u64: UInt64.max, i128: Int128.min, u128: UInt128.max,
+            c8: UInt8.max, c16: UInt16.max, c64: UInt64.max, cb: UInt1024(UInt128.max),
             enm: .c1("Hello"), earr: [.c1(nil), .c2(Int32.min, false)],
             carrarr: [[0], [UInt32.max, 0, UInt32.max], []],
             strct: SimpleStruct(("Hello", Int32.max), "World!")
@@ -46,7 +46,7 @@ final class StructTests: XCTestCase {
         """
         let strct2 = ComplexStruct(
             i8: Int8.max, i16: Int16.max, i32: Int32.max, u32: 0, i64: Int64.max,
-            u64: 0, i128: BigInt(2).power(127) - 1, u128: 0,
+            u64: 0, i128: Int128.max, u128: 0,
             c8: 0, c16: 0, c64: 0, cb: 0,
             enm: .c1(nil), earr: [.c1("Hello"), .c2(Int32.max, nil)],
             carrarr: [[0, UInt32.max], [UInt32.max]],
@@ -69,20 +69,20 @@ private struct ComplexStruct: Equatable, ScaleCodable {
     let u32: UInt32
     let i64: Int64
     let u64: UInt64
-    let i128: BigInt
-    let u128: BigUInt
+    let i128: Int128
+    let u128: UInt128
     let c8: UInt8
     let c16: UInt16
     let c64: UInt64
-    let cb: BigUInt
+    let cb: UInt1024
     let enm: TDataEnum
     let earr: Array<TDataEnum>
     let carrarr: Array<Array<UInt32>>
     let strct: SimpleStruct
     
     init(
-        i8: Int8, i16: Int16, i32: Int32, u32: UInt32, i64: Int64, u64: UInt64, i128: BigInt,
-        u128: BigUInt, c8: UInt8, c16: UInt16, c64: UInt64, cb: BigUInt, enm: TDataEnum,
+        i8: Int8, i16: Int16, i32: Int32, u32: UInt32, i64: Int64, u64: UInt64, i128: Int128,
+        u128: UInt128, c8: UInt8, c16: UInt16, c64: UInt64, cb: UInt1024, enm: TDataEnum,
         earr: Array<TDataEnum>, carrarr: Array<Array<UInt32>>, strct: SimpleStruct
     ) {
         self.i8 = i8; self.i16 = i16; self.i32 = i32; self.u32 = u32; self.i64 = i64
@@ -95,20 +95,20 @@ private struct ComplexStruct: Equatable, ScaleCodable {
         i8 = try decoder.decode(); i16 = try decoder.decode()
         i32 = try decoder.decode(); u32 = try decoder.decode()
         i64 = try decoder.decode(); u64 = try decoder.decode()
-        i128 = try decoder.decode(.b128); u128 = try decoder.decode(.b128)
+        i128 = try decoder.decode(); u128 = try decoder.decode()
         c8 = try decoder.decode(.compact); c16 = try decoder.decode(.compact)
         c64 = try decoder.decode(.compact); cb = try decoder.decode(.compact)
         enm = try decoder.decode(); earr = try decoder.decode()
-        let sarr = try decoder.decode(Array<Array<SCompact<UInt32>>>.self)
+        let sarr = try decoder.decode(Array<Array<Compact<UInt32>>>.self)
         carrarr = sarr.map { $0.map { $0.value } }
         strct = try decoder.decode()
     }
     
     func encode(in encoder: ScaleEncoder) throws {
-        let sarr = carrarr.map { $0.map { SCompact($0) } }
+        let sarr = carrarr.map { $0.map { Compact($0) } }
         try encoder.encode(i8).encode(i16).encode(i32)
-            .encode(u32).encode(i64).encode(u64).encode(i128, .b128)
-            .encode(u128, .b128).encode(c8, .compact).encode(c16, .compact)
+            .encode(u32).encode(i64).encode(u64).encode(i128)
+            .encode(u128).encode(c8, .compact).encode(c16, .compact)
             .encode(c64, .compact).encode(cb, .compact).encode(enm)
             .encode(earr).encode(sarr).encode(strct)
     }

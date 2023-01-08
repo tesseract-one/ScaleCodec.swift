@@ -81,7 +81,7 @@ final class OptionalTests: XCTestCase {
             let tests: [(TDataEnum?, String)] = [
                 (nil, "00"),
                 (.c1(-128), "01 \(try SCALE.default.encode(TDataEnum.c1(-128)).hex)"),
-                (.c2(BigUInt.compactMax), "01 \(try SCALE.default.encode(TDataEnum.c2(BigUInt.compactMax)).hex)"),
+                (.c2(UInt1024.compactMax), "01 \(try SCALE.default.encode(TDataEnum.c2(UInt1024.compactMax)).hex)"),
                 (.c3(.c2), "01 \(try SCALE.default.encode(TDataEnum.c3(.c2)).hex)")
             ]
             RunEncDecTests(tests)
@@ -120,7 +120,7 @@ private enum TEnum: CaseIterable, ScaleCodable {
 
 private enum TDataEnum: ScaleCodable, Equatable {
     case c1(Int32)
-    case c2(BigUInt)
+    case c2(UInt1024)
     case c3(TEnum)
     
     init(from decoder: ScaleDecoder) throws {
