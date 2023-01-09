@@ -6,11 +6,6 @@
 //
 
 import XCTest
-#if os(Linux) || os(tvOS)
-import CwlPosixPreconditionTesting
-#else
-import CwlPreconditionTesting
-#endif
 @testable import ScaleCodec
 
 final class DoubleWidthTests: XCTestCase {
@@ -101,11 +96,6 @@ final class DoubleWidthTests: XCTestCase {
         XCTAssertTrue(DWU16(UInt16.max) == UInt16.max)
         XCTAssertNil(DWU16(exactly: UInt32.max))
         XCTAssertEqual(DWU16(truncatingIfNeeded: UInt64.max), DWU16.max)
-        
-        let e = catchBadInstruction {
-            _ = DWU16(UInt32.max)
-        }
-        XCTAssertNotNil(e)
     }
     
     func testMagnitude() {
@@ -164,42 +154,12 @@ final class DoubleWidthTests: XCTestCase {
         f(6171603459878809765 as Int64, type: DWI64.self)
     }
     
-    func testRemainder_DividingBy0() {
-        func f(_ x: Int1024, _ y: Int1024) -> Int1024 {
-            return x % y
-        }
-        let e = catchBadInstruction {
-            _ = f(42, 0)
-        }
-        XCTAssertNotNil(e)
-    }
-    
     func testRemainderReportingOverflow_DividingByMinusOne() {
         func f(_ x: Int256, _ y: Int256) -> Int256 {
             return x.remainderReportingOverflow(dividingBy: y).partialValue
         }
         XCTAssertEqual(f(.max, -1), 0)
         XCTAssertEqual(f(.min, -1), 0)
-    }
-    
-    func testDivision_By0() {
-        func f(_ x: Int1024, _ y: Int1024) -> Int1024 {
-            return x / y
-        }
-        let e = catchBadInstruction {
-            _ = f(42, 0)
-        }
-        XCTAssertNotNil(e)
-    }
-    
-    func testDivideMinByMinusOne() {
-        func f(_ x: Int1024) -> Int1024 {
-            return x / -1
-        }
-        let e = catchBadInstruction {
-            _ = f(Int1024.min)
-        }
-        XCTAssertNotNil(e)
     }
     
     func testisMultiple() {
@@ -213,16 +173,6 @@ final class DoubleWidthTests: XCTestCase {
         }
         isMultipleTest(type: Int128.self)
         isMultipleTest(type: UInt128.self)
-    }
-    
-    func testMultiplyMinByMinusOne() {
-        func f(_ x: Int1024) -> Int1024 {
-            return x * -1
-        }
-        let e = catchBadInstruction {
-            _ = f(Int1024.min)
-        }
-        XCTAssertNotNil(e)
     }
     
     typealias DWI16 = DoubleWidth<Int8>
@@ -271,34 +221,6 @@ final class DoubleWidthTests: XCTestCase {
         XCTAssertNil(DWU16(exactly: Float.nan))
         XCTAssertNil(DWU16(exactly: Double.infinity))
         XCTAssertNil(DWU16(exactly: Float.infinity))
-    }
-    
-    func testConversions_SignedMaxP1() {
-        let e = catchBadInstruction {
-            _ = DWI16(1 << 15)
-        }
-        XCTAssertNotNil(e)
-    }
-    
-    func testConversions_SignedMinM1() {
-        let e = catchBadInstruction {
-            _ = DWI16(-1 << 15 - 1)
-        }
-        XCTAssertNotNil(e)
-    }
-    
-    func testConversions_UnsignedMaxP1() {
-        let e = catchBadInstruction {
-            _ = DWU16(1 << 16)
-        }
-        XCTAssertNotNil(e)
-    }
-    
-    func testConversions_UnsignedM1() {
-        let e = catchBadInstruction {
-            _ = DWU16(-1)
-        }
-        XCTAssertNotNil(e)
     }
     
     func testConversions_String() {

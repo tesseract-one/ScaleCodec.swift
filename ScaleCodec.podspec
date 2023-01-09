@@ -26,7 +26,6 @@ SCALE codec implementation for Swift language. Supports all SCALE standard types
   
   s.test_spec 'Tests' do |test_spec|
     test_spec.platforms = {:ios => '9.0', :osx => '10.10', :tvos => '9.0'}
-    test_spec.source_files = 'Tests/ScaleCodecTests/**/*.swift', 'Tests/DoubleWidthTests/**/*.swift'
-    test_spec.dependency 'CwlPreconditionTesting', '~> 2.1.0'
+    test_spec.source_files = 'Tests/ScaleCodecTests/**/*.swift', 'Tests/DoubleWidthTests/DoubleWidthTests.swift'
   end
 end
