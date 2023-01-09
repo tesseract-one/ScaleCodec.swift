@@ -12,7 +12,7 @@ public protocol ScaleFixedEncodable: ScaleEncodable {
     
     static var fixedElementCount: Int { get }
     
-    func encode() throws -> [Element]
+    func values() throws -> [Element]
 }
 
 public protocol ScaleFixedDecodable: ScaleDecodable {
@@ -20,49 +20,46 @@ public protocol ScaleFixedDecodable: ScaleDecodable {
     
     static var fixedElementCount: Int { get }
     
-    init(decoding values: [Element]) throws
+    init(values: [Element]) throws
 }
 
 public typealias ScaleFixed = ScaleFixedEncodable & ScaleFixedDecodable
 
 extension ScaleFixedEncodable {
     public func encode(in encoder: ScaleEncoder) throws {
-        let values = try self.encode()
-        try encoder.encode(values, .fixed(UInt(Self.fixedElementCount)))
+        try encoder.encode(self.values(), .fixed(UInt(Self.fixedElementCount)))
     }
 }
 
 extension ScaleFixedDecodable {
     public init(from decoder: ScaleDecoder) throws {
-        let values: [Element] = try decoder.decode(.fixed(UInt(Self.fixedElementCount)))
-        try self.init(decoding: values)
+        try self.init(values: decoder.decode(.fixed(UInt(Self.fixedElementCount))))
     }
 }
 
 public protocol ScaleFixedDataEncodable: ScaleEncodable {
-    static var fixedBytesCount: Int { get }
+    func serialize() -> Data
     
-    func encode() throws -> Data
+    static var fixedBytesCount: Int { get }
 }
 
 public protocol ScaleFixedDataDecodable: ScaleDecodable {
-    static var fixedBytesCount: Int { get }
-    
     init(decoding data: Data) throws
+    
+    static var fixedBytesCount: Int { get }
 }
 
 public typealias ScaleFixedData = ScaleFixedDataEncodable & ScaleFixedDataDecodable
 
 extension ScaleFixedDataEncodable {
     public func encode(in encoder: ScaleEncoder) throws {
-        let data = try self.encode()
-        try encoder.encode(data, .fixed(UInt(Self.fixedBytesCount)))
+        try encoder.encode(self.serialize(), .fixed(UInt(Self.fixedBytesCount)))
     }
 }
 
 extension ScaleFixedDataDecodable {
     public init(from decoder: ScaleDecoder) throws {
-        let data: Data = try decoder.decode(.fixed(UInt(Self.fixedBytesCount)))
-        try self.init(decoding: data)
+        try self.init(decoding: decoder.decode(.fixed(UInt(Self.fixedBytesCount))))
     }
 }
+

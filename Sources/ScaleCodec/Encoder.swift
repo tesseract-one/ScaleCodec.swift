@@ -24,6 +24,12 @@ public protocol ScaleEncoder: AnyObject {
     func fork(full: Bool) -> ScaleEncoder
 }
 
+extension ScaleEncoder {
+    public func errorContext(_ description: String) -> SEncodingError.Context {
+        SEncodingError.Context(path: path, description: description)
+    }
+}
+
 internal class SEncoder: ScaleEncoder {
     public private(set) var output: Data
     private var context: SContext

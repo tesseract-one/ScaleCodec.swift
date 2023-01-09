@@ -28,25 +28,46 @@ extension Bool: ScaleCodable {
     }
 }
 
-extension FixedWidthInteger where Self: ScaleFixedData {
-    public init(decoding data: Data) throws {
+extension FixedWidthInteger {
+    public init?(data: Data, littleEndian: Bool, trimmed: Bool) {
+        guard data.count <= Self.bitWidth / 8 else {
+            return nil
+        }
+        var data = data
+        if (trimmed) {
+            data.ensureSize(expected: Self.bitWidth / 8, leading: !littleEndian)
+        }
         self = data.withUnsafeBytes {
-            $0.load(as: Self.self).littleEndian
+            let value = $0.load(as: Self.self)
+            return littleEndian ? value.littleEndian : value.bigEndian
         }
     }
     
-    public func encode() throws -> Data {
-        return withUnsafeBytes(of: self.littleEndian) { Data($0) }
+    public func data(littleEndian: Bool, trimmed: Bool) -> Data {
+        let data = withUnsafeBytes(
+            of: littleEndian ? self.littleEndian : self.bigEndian
+        ) { Data($0) }
+        return trimmed ? data.trimming(leading: !littleEndian) : data
+    }
+}
+
+extension FixedWidthInteger where Self: ScaleFixedData & DataConvertible {
+    public init(decoding data: Data) throws {
+        self.init(data: data, littleEndian: true, trimmed: false)!
+    }
+    
+    public func serialize() -> Data {
+        data(littleEndian: true, trimmed: false)
     }
     
     public static var fixedBytesCount: Int { Self.bitWidth / 8 }
 }
 
-extension UInt8: ScaleFixedData {}
-extension Int8: ScaleFixedData {}
-extension UInt16: ScaleFixedData {}
-extension Int16: ScaleFixedData {}
-extension UInt32: ScaleFixedData {}
-extension Int32: ScaleFixedData {}
-extension UInt64: ScaleFixedData {}
-extension Int64: ScaleFixedData {}
+extension UInt8: ScaleFixedData, DataConvertible {}
+extension Int8: ScaleFixedData, DataConvertible {}
+extension UInt16: ScaleFixedData, DataConvertible {}
+extension Int16: ScaleFixedData, DataConvertible {}
+extension UInt32: ScaleFixedData, DataConvertible {}
+extension Int32: ScaleFixedData, DataConvertible {}
+extension UInt64: ScaleFixedData, DataConvertible {}
+extension Int64: ScaleFixedData, DataConvertible {}

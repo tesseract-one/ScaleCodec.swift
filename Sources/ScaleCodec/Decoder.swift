@@ -26,6 +26,10 @@ extension ScaleDecoder {
     public func decode<T: ScaleDecodable>(_ type: T.Type) throws -> T {
         return try self.decode()
     }
+    
+    public func errorContext(_ description: String) -> SDecodingError.Context {
+        SDecodingError.Context(path: path, description: description)
+    }
 }
 
 internal class SDecoder: ScaleDecoder {

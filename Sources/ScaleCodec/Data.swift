@@ -43,3 +43,56 @@ extension ScaleCustomEncoderFactory where T == Data {
         }
     }
 }
+
+public protocol DataSerializable {
+    func data(littleEndian: Bool, trimmed: Bool) -> Data
+}
+
+public protocol DataInitalizable {
+    init?(data: Data, littleEndian: Bool, trimmed: Bool)
+}
+
+public typealias DataConvertible = DataInitalizable & DataSerializable
+
+extension Data {
+    public mutating func trim(leading: Bool, value: UInt8 = 0) {
+        if leading {
+            guard let index = firstIndex(where: { $0 != value }) else {
+                return
+            }
+            removeFirst(index)
+        } else {
+            guard let index = lastIndex(where: { $0 != value }) else {
+                return
+            }
+            removeLast(count - index - 1)
+        }
+    }
+    
+    public func trimming(leading: Bool, value: UInt8 = 0) -> Data {
+        var data = self
+        data.trim(leading: leading, value: value)
+        return data
+    }
+    
+    public mutating func ensureSize(
+        expected size: Int,
+        leading: Bool,
+        fill byte: UInt8 = 0
+    ) {
+        guard count < size else { return }
+        let fill = Data(repeating: byte, count: size - count)
+        leading ? insert(contentsOf: fill, at: 0) : append(contentsOf: fill)
+    }
+    
+    public func ensuringSize(
+        expected size: Int,
+        leading: Bool,
+        fill byte: UInt8 = 0
+    ) -> Data {
+        guard count < size else { return self }
+        var data = self
+        data.ensureSize(expected: size, leading: leading, fill: byte)
+        return data
+    }
+}

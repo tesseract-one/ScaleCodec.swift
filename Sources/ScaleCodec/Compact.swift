@@ -11,10 +11,10 @@ public protocol CompactCodable: Hashable {
     associatedtype UI: UnsignedInteger
     
     init(uint: UI)
-    init(littleEndianData data: Data) throws
+    init?(trimmedLittleEndianData: Data)
     
     var uint: UI { get }
-    var littleEndianData: Data { get }
+    var trimmedLittleEndianData: Data { get }
     
     static var compactBitWidth: Int { get }
     static var compactMax: UI { get }
@@ -47,7 +47,7 @@ extension Compact: CompactConvertible {
     }
 }
 
-extension CompactCodable {
+extension CompactCodable { // CompactConvertible
     public init<C: CompactCodable>(compact: Compact<C>) throws {
         guard compact.value.uint <= Self.compactMax else {
             throw Compact<C>.Error.overflow(
@@ -71,6 +71,21 @@ extension CompactCodable {
     }
 }
 
+extension CompactCodable where Self: DataConvertible { // DataConvertible
+    public init?(trimmedLittleEndianData bytes: Data) {
+        guard let val = Self(
+            data: bytes, littleEndian: true, trimmed: true
+        ) else {
+            return nil
+        }
+        self = val
+    }
+    
+    public var trimmedLittleEndianData: Data {
+        data(littleEndian: true, trimmed: true)
+    }
+}
+
 extension Compact: ScaleEncodable {
     public func encode(in encoder: ScaleEncoder) throws {
         let u32 = UInt32(clamping: value.uint)
@@ -88,7 +103,7 @@ extension Compact: ScaleEncodable {
                     )
                 )
             }
-            var data = value.littleEndianData
+            var data = value.trimmedLittleEndianData
             data.insert(UInt8(data.count - 4) << 2 | 0b11, at: 0)
             encoder.write(data)
         }
@@ -113,8 +128,13 @@ extension Compact: ScaleDecodable {
         case 0b11:
             let len = try decoder.decode(UInt8.self) >> 2 + 4
             let bytes = try decoder.readOrError(count: Int(len), type: type(of: self))
-            value = try T(littleEndianData: bytes)
-            try Self.checkSize(value: value.uint, decoder: decoder)
+            guard let val = T(trimmedLittleEndianData: bytes) else {
+                throw SDecodingError.dataCorrupted(
+                    decoder.errorContext("Can't init \(T.self) with bytes \(bytes)")
+                )
+            }
+            try Self.checkSize(value: val.uint, decoder: decoder)
+            value = val
         default: fatalError() // Only to silence compiler error
         }
     }
@@ -153,25 +173,6 @@ extension UnsignedInteger where Self: CompactCodable, UI == Self {
         self.init(uint)
     }
     public var uint: UI { self }
-}
-
-extension FixedWidthInteger where Self: ScaleFixedData & CompactCodable, UI == Self {
-    public init(littleEndianData data: Data) throws {
-        var data = data
-        if data.count < Self.fixedBytesCount {
-            data.append(contentsOf: Array(repeating: 0,
-                                          count: Self.fixedBytesCount - data.count))
-        }
-        try self.init(decoding: data)
-    }
-    
-    public var littleEndianData: Data {
-        let data = try! self.encode()
-        guard let index = data.lastIndex(where: { $0 != 0 }) else {
-            return Data()
-        }
-        return data.prefix(upTo: index + 1)
-    }
 }
 
 extension FixedWidthInteger where Self: CompactCodable, UI == Self {

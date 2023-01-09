@@ -49,11 +49,11 @@ extension TStringArray4: ScaleFixed {
     
     static var fixedElementCount: Int = 4
     
-    init(decoding values: [String]) throws {
+    init(values: [String]) throws {
         self.init(values)
     }
     
-    func encode() throws -> [String] {
+    func values() -> [String] {
         return self.array
     }
 }
@@ -73,7 +73,7 @@ extension THash: ScaleFixedData {
         self.init(data)
     }
     
-    func encode() throws -> Data {
+    func serialize() -> Data {
         return self.data
     }
 }
