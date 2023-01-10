@@ -118,7 +118,9 @@ extension StringTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__StringTests = [
+        ("testBadCharacter", testBadCharacter),
         ("testBadUTF8", testBadUTF8),
+        ("testCharacter", testCharacter),
         ("testEncodingDecoding", testEncodingDecoding),
         ("testUTF8", testUTF8),
     ]

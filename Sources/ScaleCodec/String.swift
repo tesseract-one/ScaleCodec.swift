@@ -35,3 +35,25 @@ extension String: ScaleCodable {
         try encoder.encode(data)
     }
 }
+
+extension Character: ScaleCodable {
+    public init(from decoder: ScaleDecoder) throws {
+        let value = try decoder.decode(UInt32.self)
+        guard let scalar = UnicodeScalar(value) else {
+            throw SDecodingError.dataCorrupted(
+                decoder.errorContext("Bad character data: \(value)")
+            )
+        }
+        self.init(scalar)
+    }
+    
+    public func encode(in encoder: ScaleEncoder) throws {
+        guard unicodeScalars.count == 1 else {
+            throw SEncodingError.invalidValue(
+                self,
+                encoder.errorContext("Bad character value. Has \(unicodeScalars.count) scalars")
+            )
+        }
+        try encoder.encode(unicodeScalars.first!.value)
+    }
+}

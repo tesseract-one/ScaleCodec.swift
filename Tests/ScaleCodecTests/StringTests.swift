@@ -29,4 +29,22 @@ final class StringTests: XCTestCase {
         let encoded = Data([20, 114, 167, 10, 20, 114]);
         XCTAssertThrowsError(try SCALE.default.decode(String.self, from: encoded))
     }
+    
+    func testCharacter() {
+        let values = [
+            (Character("A"), "41 00 00 00"),
+            (Character(UnicodeScalar(0)), "00 00 00 00"),
+            (Character(UnicodeScalar(UInt16(0xD7FF))!), "ff d7 00 00"),
+            (Character(UnicodeScalar(UInt16(0xE000))!), "00 e0 00 00"),
+            (Character(UnicodeScalar(UInt32(0x10FFFF))!), "ff ff 10 00"),
+            (Character("é"), "e9 00 00 00"),
+            (Character("🐥"), "25 f4 01 00")
+        ]
+        RunEncDecTests(values)
+    }
+    
+    func testBadCharacter() {
+        XCTAssertThrowsError(try SCALE.default.decode(Character.self, from: "ff ff 11 00".hexData!))
+        XCTAssertThrowsError(try SCALE.default.decode(Character.self, from: "ff d8 00 00".hexData!))
+    }
 }
