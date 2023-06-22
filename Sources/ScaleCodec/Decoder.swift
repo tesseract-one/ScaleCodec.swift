@@ -20,6 +20,8 @@ public protocol ScaleDecoder: AnyObject {
     func decode<T: ScaleDecodable>() throws -> T
     func read(count: Int) throws -> Data
     func peek(count: Int) throws -> Data
+    func seek(count: Int) throws
+    func fork() -> ScaleDecoder
 }
 
 extension ScaleDecoder {
@@ -49,15 +51,19 @@ internal class SDecoder: ScaleDecoder {
         return context.currentPath
     }
     
-    required init(data: Data) {
+    required convenience init(data: Data) {
+        self.init(data: data, context: SContext())
+    }
+    
+    init(data: Data, context: SContext) {
         self.data = data
         self.position = 0
-        self.context = SContext()
+        self.context = context
     }
     
     func read(count: Int) throws -> Data {
         let data = try peek(count: count)
-        self.position += count
+        try seek(count: count)
         return data
     }
     
@@ -66,6 +72,18 @@ internal class SDecoder: ScaleDecoder {
             throw Error.noDataLeft
         }
         return self.data.subdata(in: self.position..<self.position+count)
+    }
+    
+    func seek(count: Int) throws {
+        guard count <= length else {
+            throw Error.noDataLeft
+        }
+        self.position += count
+    }
+    
+    func fork() -> ScaleDecoder {
+        SDecoder(data: data.subdata(in: self.position..<data.count),
+                 context: context)
     }
     
     func decode<T: ScaleDecodable>() throws -> T {
