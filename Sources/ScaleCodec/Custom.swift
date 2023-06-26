@@ -39,10 +39,12 @@ extension Encoder {
     }
 }
 
-public func encode<T>(_ value: T, _ custom: CustomEncoderFactory<T, DataEncoder>, reservedCapacity count: Int = 4096) throws -> Data {
-    var encoder = encoder(reservedCapacity: count)
-    try encoder.encode(value, custom)
-    return encoder.output
+public func encode<T>(_ value: T, _ custom: CustomEncoderFactory<T, DataEncoder>,
+                      reservedCapacity count: Int = 4096) throws -> Data
+{
+    var _encoder = encoder(reservedCapacity: count)
+    try _encoder.encode(value, custom)
+    return _encoder.output
 }
 
 public func decode<T>(_ type: T.Type, _ custom: CustomDecoderFactory<T, DataDecoder>, from data: Data) throws -> T {
@@ -50,6 +52,6 @@ public func decode<T>(_ type: T.Type, _ custom: CustomDecoderFactory<T, DataDeco
 }
 
 public func decode<T>(_ custom: CustomDecoderFactory<T, DataDecoder>, from data: Data) throws -> T {
-    var decoder = decoder(from: data)
-    return try decoder.decode(custom)
+    var _decoder = decoder(from: data)
+    return try _decoder.decode(custom)
 }

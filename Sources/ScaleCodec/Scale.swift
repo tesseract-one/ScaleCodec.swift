@@ -19,15 +19,15 @@ public func decoder(from data: Data) -> DataDecoder { DataDecoder(data: data) }
 
 @inlinable
 public func encode<T: Encodable>(_ value: T, reservedCapacity count: Int = 4096) throws -> Data {
-    var encoder = encoder(reservedCapacity: count)
-    try encoder.encode(value)
-    return encoder.output
+    var _encoder = encoder(reservedCapacity: count)
+    try _encoder.encode(value)
+    return _encoder.output
 }
 
 @inlinable
 public func decode<T: Decodable>(from data: Data) throws -> T {
-    var decoder = decoder(from: data)
-    return try decoder.decode()
+    var _decoder = decoder(from: data)
+    return try _decoder.decode()
 }
 
 @inlinable
