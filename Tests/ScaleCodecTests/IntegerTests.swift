@@ -16,7 +16,7 @@ final class IntegerTests: XCTestCase {
             (true, "01")
         ]
         RunEncDecTests(tests)
-        XCTAssertThrowsError(try SCALE.default.decode(Bool.self, from: Data([0x02])))
+        XCTAssertThrowsError(try ScaleCodec.decode(Bool.self, from: Data([0x02])))
     }
     
     func testInt8() {

@@ -7,49 +7,49 @@
 
 import Foundation
 
-public struct ScaleCustomDecoderFactory<T> {
-    public let decoder: (ScaleDecoder) throws -> T
+public struct CustomDecoderFactory<T, D: Decoder> {
+    public let decoder: (inout D) throws -> T
     
-    public init(_ decoder: @escaping (ScaleDecoder) throws -> T) {
+    public init(_ decoder: @escaping (inout D) throws -> T) {
         self.decoder = decoder
     }
 }
 
-public struct ScaleCustomEncoderFactory<T> {
-    public let encoder: (ScaleEncoder, T) throws -> ScaleEncoder
+public struct CustomEncoderFactory<T, E: Encoder> {
+    public let encoder: (inout E, T) throws -> Void
     
-    public init(_ encoder: @escaping (ScaleEncoder, T) throws -> ScaleEncoder) {
+    public init(_ encoder: @escaping (inout E, T) throws -> Void) {
         self.encoder = encoder
     }
 }
 
-extension ScaleDecoder {
-    public func decode<T>(_ type: T.Type, _ custom: ScaleCustomDecoderFactory<T>) throws -> T {
-        return try custom.decoder(self)
+extension Decoder {
+    public mutating func decode<T>(_ type: T.Type, _ custom: CustomDecoderFactory<T, Self>) throws -> T {
+        return try custom.decoder(&self)
     }
     
-    public func decode<T>(_ custom: ScaleCustomDecoderFactory<T>) throws -> T {
-        return try custom.decoder(self)
+    public mutating func decode<T>(_ custom: CustomDecoderFactory<T, Self>) throws -> T {
+        return try custom.decoder(&self)
     }
 }
 
-extension ScaleEncoder {
-    @discardableResult
-    public func encode<T>(_ value: T, _ custom: ScaleCustomEncoderFactory<T>) throws -> ScaleEncoder {
-        return try custom.encoder(self, value)
+extension Encoder {
+    public mutating func encode<T>(_ value: T, _ custom: CustomEncoderFactory<T, Self>) throws {
+        try custom.encoder(&self, value)
     }
 }
 
-extension SCALE {
-    public func encode<T>(_ value: T, _ custom: ScaleCustomEncoderFactory<T>) throws -> Data {
-        return try self.encoder().encode(value, custom).output
-    }
-    
-    public func decode<T>(_ type: T.Type, _ custom: ScaleCustomDecoderFactory<T>, from data: Data) throws -> T {
-        return try self.decode(custom, from: data)
-    }
-    
-    public func decode<T>(_ custom: ScaleCustomDecoderFactory<T>, from data: Data) throws -> T {
-        return try self.decoder(data: data).decode(custom)
-    }
+public func encode<T>(_ value: T, _ custom: CustomEncoderFactory<T, DataEncoder>, reservedCapacity count: Int = 4096) throws -> Data {
+    var encoder = encoder(reservedCapacity: count)
+    try encoder.encode(value, custom)
+    return encoder.output
+}
+
+public func decode<T>(_ type: T.Type, _ custom: CustomDecoderFactory<T, DataDecoder>, from data: Data) throws -> T {
+    return try decode(custom, from: data)
+}
+
+public func decode<T>(_ custom: CustomDecoderFactory<T, DataDecoder>, from data: Data) throws -> T {
+    var decoder = decoder(from: data)
+    return try decoder.decode(custom)
 }

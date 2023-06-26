@@ -22,13 +22,13 @@ final class DataTests: XCTestCase {
         let data = Data([0, 1, 1, 2, 3, 5, 8, 13, 21, 34])
         let encoded = "00 01 01 02 03 05 08 0d 15 22"
         do {
-            let enc = try SCALE.default.encoder().encode(data, .fixed(10)).output
+            let enc = try ScaleCodec.encode(data, .fixed(10))
             XCTAssertEqual(encoded, enc.hex)
-            let dec = try SCALE.default.decoder(data: encoded.hexData!).decode(Data.self, .fixed(10))
+            let dec = try ScaleCodec.decode(Data.self, .fixed(10), from: encoded.hexData!)
             XCTAssertEqual(dec, data)
         } catch { XCTFail("\(error)") }
-        XCTAssertThrowsError(try SCALE.default.encoder().encode(data, .fixed(12)))
-        XCTAssertThrowsError(try SCALE.default.decoder(data: encoded.hexData!).decode(Data.self, .fixed(11)))
+        XCTAssertThrowsError(try ScaleCodec.encode(data, .fixed(12)))
+        XCTAssertThrowsError(try ScaleCodec.decode(Data.self, .fixed(11), from: encoded.hexData!))
     }
     
 }

@@ -29,10 +29,10 @@ final class ResultTests: XCTestCase {
     }
     
     func testBadData() {
-        XCTAssertThrowsError(try SCALE.default.decode(Result<UInt8, TError>.self, from: "ff 00".hexData!))
+        XCTAssertThrowsError(try ScaleCodec.decode(Result<UInt8, TError>.self, from: "ff 00".hexData!))
     }
 }
 
-private enum TError: CaseIterable, Error, ScaleCodable {
+private enum TError: CaseIterable, Error, Codable {
     case err
 }

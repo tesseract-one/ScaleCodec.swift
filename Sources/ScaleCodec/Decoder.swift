@@ -7,118 +7,134 @@
 
 import Foundation
 
-public protocol ScaleDecodable {
-    init(from decoder: ScaleDecoder) throws
+public protocol Decodable {
+    init<D: Decoder>(from decoder: inout D) throws
 }
 
-public protocol ScaleDecoder: AnyObject {
+public protocol Decoder {
     var length: Int { get }
     var path: [String] { get }
     
-    init(data: Data)
-    
-    func decode<T: ScaleDecodable>() throws -> T
-    func read(count: Int) throws -> Data
+    mutating func decode<T: Decodable>() throws -> T
+    mutating func read(count: Int) throws -> Data
     func peek(count: Int) throws -> Data
-    func seek(count: Int) throws
-    func fork() -> ScaleDecoder
+    func peek() throws -> UInt8
+    func skippable() -> SkippableDecoder
 }
 
-extension ScaleDecoder {
-    public func decode<T: ScaleDecodable>(_ type: T.Type) throws -> T {
+public protocol SkippableDecoder: Decoder {
+    mutating func skip(count: Int) throws
+}
+
+extension Decoder {
+    @inlinable
+    public mutating func decode<T: Decodable>(_ type: T.Type) throws -> T {
         return try self.decode()
     }
     
-    public func errorContext(_ description: String) -> SDecodingError.Context {
-        SDecodingError.Context(path: path, description: description)
+    @inlinable
+    public func errorContext(_ description: String) -> DecodingError.Context {
+        DecodingError.Context(path: path, description: description)
     }
 }
 
-internal class SDecoder: ScaleDecoder {
-    public enum Error: Swift.Error {
-        case noDataLeft
-    }
+private protocol DecoderCommonImpls: Decoder {
+    var data: Data { get }
+    var position: Int { get set }
+    var context: SContext { get set }
     
-    private let data: Data
-    private var position: Int
-    private var context: SContext
-    
-    var length: Int {
+    init(data: Data, position: Int, context: SContext)
+}
+
+extension DecoderCommonImpls {
+    public var length: Int {
         return data.count - position
     }
     
-    var path: [String] {
+    public var path: [String] {
         return context.currentPath
     }
     
-    required convenience init(data: Data) {
-        self.init(data: data, context: SContext())
+    public init(data: Data) {
+        self.init(data: data, position: 0, context: SContext())
     }
     
-    init(data: Data, context: SContext) {
-        self.data = data
-        self.position = 0
-        self.context = context
-    }
-    
-    func read(count: Int) throws -> Data {
+    public mutating func read(count: Int) throws -> Data {
         let data = try peek(count: count)
-        try seek(count: count)
+        self.position += count
         return data
     }
     
-    func peek(count: Int) throws -> Data {
+    public func peek(count: Int) throws -> Data {
         guard count <= length else {
-            throw Error.noDataLeft
+            throw DecodingError.notEnoughData(
+                DecodingError.Context(
+                    path: path,
+                    description: "Tried to read \(count) bytes when \(length) left")
+            )
         }
         return self.data.subdata(in: self.position..<self.position+count)
     }
     
-    func seek(count: Int) throws {
-        guard count <= length else {
-            throw Error.noDataLeft
+    public func peek() throws -> UInt8 {
+        guard length > 0 else {
+            throw DecodingError.notEnoughData(
+                DecodingError.Context(
+                    path: path,
+                    description: "Tried to read 1 byte from empty decoder")
+            )
         }
-        self.position += count
+        return data[position]
     }
     
-    func fork() -> ScaleDecoder {
-        SDecoder(data: data.subdata(in: self.position..<data.count),
-                 context: context)
-    }
-    
-    func decode<T: ScaleDecodable>() throws -> T {
+    public mutating func decode<T: Decodable>() throws -> T {
         context.push(elem: T.self)
         defer { context.pop() }
-        return try T(from: self)
+        return try T(from: &self)
+    }
+    
+    public func skippable() -> SkippableDecoder {
+        SkippableDataDecoder(data: data,
+                             position: position,
+                             context: context)
     }
 }
 
-internal extension ScaleDecoder {
-    func readOrError<T>(count: Int, type: T.Type) throws -> Data {
-        do {
-            return try read(count: count)
-        } catch SDecoder.Error.noDataLeft {
-            throw SDecodingError.valueNotFound(
-                type,
-                SDecodingError.Context(
-                    path: path,
-                    description: "Don't have \(count) bytes"
-                )
-            )
-        }
+public struct DataDecoder: Decoder, DecoderCommonImpls {
+    fileprivate let data: Data
+    fileprivate var position: Int
+    fileprivate var context: SContext
+    
+    public init(data: Data) {
+        self.init(data: data, position: 0, context: SContext())
     }
     
-    func peekOrError<T>(count: Int, type: T.Type) throws -> Data {
-        do {
-            return try peek(count: count)
-        } catch SDecoder.Error.noDataLeft {
-            throw SDecodingError.valueNotFound(
-                type,
-                SDecodingError.Context(
+    fileprivate init(data: Data, position: Int, context: SContext) {
+        self.data = data
+        self.position = position
+        self.context = context
+    }
+}
+
+public struct SkippableDataDecoder: SkippableDecoder, DecoderCommonImpls {
+    fileprivate let data: Data
+    fileprivate var position: Int
+    fileprivate var context: SContext
+    
+    fileprivate init(data: Data, position: Int, context: SContext) {
+        self.data = data
+        self.position = position
+        self.context = context
+    }
+    
+    public mutating func skip(count: Int) throws {
+        guard count <= length else {
+            throw DecodingError.notEnoughData(
+                DecodingError.Context(
                     path: path,
-                    description: "Don't have \(count) bytes"
-                )
+                    description: "Tried to skip \(count) bytes when \(length) left")
             )
         }
+        self.position += count
     }
 }

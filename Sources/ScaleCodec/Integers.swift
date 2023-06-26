@@ -7,15 +7,15 @@
 
 import Foundation
 
-extension Bool: ScaleCodable {
-    public init(from decoder: ScaleDecoder) throws {
+extension Bool: Codable, SizeCalculable {
+    public init<D: Decoder>(from decoder: inout D) throws {
         let val = try decoder.decode(UInt8.self)
         switch val {
         case 0x00: self = false
         case 0x01: self = true
         default:
-            throw SDecodingError.dataCorrupted(
-                SDecodingError.Context(
+            throw DecodingError.dataCorrupted(
+                DecodingError.Context(
                     path: decoder.path,
                     description: "Wrong Bool value: \(val)"
                 )
@@ -23,8 +23,13 @@ extension Bool: ScaleCodable {
         }
     }
     
-    public func encode(in encoder: ScaleEncoder) throws {
+    public func encode<E: Encoder>(in encoder: inout E) throws {
         try encoder.encode(UInt8(self ? 0x01: 0x00))
+    }
+    
+    public static func calculateSize<D: SkippableDecoder>(in decoder: inout D) throws -> Int {
+        try decoder.skip(count: 1)
+        return 1
     }
 }
 
@@ -51,7 +56,7 @@ extension FixedWidthInteger {
     }
 }
 
-extension FixedWidthInteger where Self: ScaleFixedData & DataConvertible {
+extension FixedWidthInteger where Self: FixedDataCodable & DataConvertible {
     public init(decoding data: Data) throws {
         self.init(data: data, littleEndian: true, trimmed: false)!
     }
@@ -63,11 +68,11 @@ extension FixedWidthInteger where Self: ScaleFixedData & DataConvertible {
     public static var fixedBytesCount: Int { Self.bitWidth / 8 }
 }
 
-extension UInt8: ScaleFixedData, DataConvertible {}
-extension Int8: ScaleFixedData, DataConvertible {}
-extension UInt16: ScaleFixedData, DataConvertible {}
-extension Int16: ScaleFixedData, DataConvertible {}
-extension UInt32: ScaleFixedData, DataConvertible {}
-extension Int32: ScaleFixedData, DataConvertible {}
-extension UInt64: ScaleFixedData, DataConvertible {}
-extension Int64: ScaleFixedData, DataConvertible {}
+extension UInt8: FixedDataCodable, DataConvertible, SizeCalculable {}
+extension Int8: FixedDataCodable, DataConvertible, SizeCalculable {}
+extension UInt16: FixedDataCodable, DataConvertible, SizeCalculable {}
+extension Int16: FixedDataCodable, DataConvertible, SizeCalculable {}
+extension UInt32: FixedDataCodable, DataConvertible, SizeCalculable {}
+extension Int32: FixedDataCodable, DataConvertible, SizeCalculable {}
+extension UInt64: FixedDataCodable, DataConvertible, SizeCalculable {}
+extension Int64: FixedDataCodable, DataConvertible, SizeCalculable {}

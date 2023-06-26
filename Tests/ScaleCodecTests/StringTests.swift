@@ -27,7 +27,7 @@ final class StringTests: XCTestCase {
     
     func testBadUTF8() {
         let encoded = Data([20, 114, 167, 10, 20, 114]);
-        XCTAssertThrowsError(try SCALE.default.decode(String.self, from: encoded))
+        XCTAssertThrowsError(try ScaleCodec.decode(String.self, from: encoded))
     }
     
     func testCharacter() {
@@ -44,7 +44,7 @@ final class StringTests: XCTestCase {
     }
     
     func testBadCharacter() {
-        XCTAssertThrowsError(try SCALE.default.decode(Character.self, from: "ff ff 11 00".hexData!))
-        XCTAssertThrowsError(try SCALE.default.decode(Character.self, from: "ff d8 00 00".hexData!))
+        XCTAssertThrowsError(try ScaleCodec.decode(Character.self, from: "ff ff 11 00".hexData!))
+        XCTAssertThrowsError(try ScaleCodec.decode(Character.self, from: "ff d8 00 00".hexData!))
     }
 }

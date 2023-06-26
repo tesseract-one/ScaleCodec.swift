@@ -62,7 +62,7 @@ final class StructTests: XCTestCase {
     }
 }
 
-private struct ComplexStruct: Equatable, ScaleCodable {
+private struct ComplexStruct: Equatable, Codable {
     let i8: Int8
     let i16: Int16
     let i32: Int32
@@ -91,7 +91,7 @@ private struct ComplexStruct: Equatable, ScaleCodable {
         self.carrarr = carrarr; self.strct = strct
     }
     
-    init(from decoder: ScaleDecoder) throws {
+    init<D: Decoder>(from decoder: inout D) throws {
         i8 = try decoder.decode(); i16 = try decoder.decode()
         i32 = try decoder.decode(); u32 = try decoder.decode()
         i64 = try decoder.decode(); u64 = try decoder.decode()
@@ -104,18 +104,29 @@ private struct ComplexStruct: Equatable, ScaleCodable {
         strct = try decoder.decode()
     }
     
-    func encode(in encoder: ScaleEncoder) throws {
+    func encode<E: Encoder>(in encoder: inout E) throws {
         let sarr = carrarr.map { $0.map { Compact($0) } }
-        try encoder.encode(i8).encode(i16).encode(i32)
-            .encode(u32).encode(i64).encode(u64).encode(i128)
-            .encode(u128).encode(c8, .compact).encode(c16, .compact)
-            .encode(c64, .compact).encode(cb, .compact).encode(enm)
-            .encode(earr).encode(sarr).encode(strct)
+        try encoder.encode(i8)
+        try encoder.encode(i16)
+        try encoder.encode(i32)
+        try encoder.encode(u32)
+        try encoder.encode(i64)
+        try encoder.encode(u64)
+        try encoder.encode(i128)
+        try encoder.encode(u128)
+        try encoder.encode(c8, .compact)
+        try encoder.encode(c16, .compact)
+        try encoder.encode(c64, .compact)
+        try encoder.encode(cb, .compact)
+        try encoder.encode(enm)
+        try encoder.encode(earr)
+        try encoder.encode(sarr)
+        try encoder.encode(strct)
     }
     
 }
 
-private struct SimpleStruct: ScaleCodable, Equatable {
+private struct SimpleStruct: Codable, Equatable {
     let tuple: (String?, Int32?)
     let str: String
     
@@ -128,37 +139,38 @@ private struct SimpleStruct: ScaleCodable, Equatable {
         self.str = str
     }
     
-    init(from decoder: ScaleDecoder) throws {
+    init<D: Decoder>(from decoder: inout D) throws {
         tuple = try decoder.decode()
         str = try decoder.decode()
     }
     
-    func encode(in encoder: ScaleEncoder) throws {
-        try encoder.encode(tuple).encode(str)
+    func encode<E: Encoder>(in encoder: inout E) throws {
+        try encoder.encode(tuple)
+        try encoder.encode(str)
     }
 }
 
-private struct Wrapper: ScaleCodable, Equatable {
+private struct Wrapper: Codable, Equatable {
     let wrapped: UInt32
     
     init(_ value: UInt32) {
         wrapped = value
     }
     
-    init(from decoder: ScaleDecoder) throws {
+    init<D: Decoder>(from decoder: inout D) throws {
         wrapped = try decoder.decode(.compact)
     }
     
-    func encode(in encoder: ScaleEncoder) throws {
+    func encode<E: Encoder>(in encoder: inout E) throws {
         try encoder.encode(wrapped, .compact)
     }
 }
 
-private enum TDataEnum: ScaleCodable, Equatable {
+private enum TDataEnum: Codable, Equatable {
     case c1(String?)
     case c2(Int32, Bool?)
     
-    init(from decoder: ScaleDecoder) throws {
+    init<D: Decoder>(from decoder: inout D) throws {
         let opt = try decoder.decode(.enumCaseId)
         switch opt {
         case 0: self = try .c1(decoder.decode())
@@ -167,10 +179,15 @@ private enum TDataEnum: ScaleCodable, Equatable {
         }
     }
     
-    func encode(in encoder: ScaleEncoder) throws {
+    func encode<E: Encoder>(in encoder: inout E) throws {
         switch self {
-        case .c1(let str): try encoder.encode(0, .enumCaseId).encode(str)
-        case .c2(let int, let obool): try encoder.encode(1, .enumCaseId).encode(int).encode(obool)
+        case .c1(let str):
+            try encoder.encode(0, .enumCaseId)
+            try encoder.encode(str)
+        case .c2(let int, let obool):
+            try encoder.encode(1, .enumCaseId)
+            try encoder.encode(int)
+            try encoder.encode(obool)
         }
     }
 }

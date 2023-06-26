@@ -7,32 +7,30 @@
 
 import Foundation
 
-public typealias ScaleCodable = ScaleEncodable & ScaleDecodable
+public typealias Codable = Encodable & Decodable
 
-open class SCALE {
-    public init() {}
-    
-    open func encoder() -> ScaleEncoder {
-        return SEncoder()
-    }
-    
-    open func decoder(data: Data) -> ScaleDecoder {
-        return SDecoder(data: data)
-    }
-    
-    public static let `default`: SCALE = SCALE()
+@inlinable
+public func encoder(reservedCapacity count: Int = 4096) -> DataEncoder {
+    DataEncoder(reservedCapacity: count)
 }
 
-extension SCALE {
-    public func encode<T: ScaleEncodable>(_ value: T) throws -> Data {
-        return try encoder().encode(value).output
-    }
-    
-    public func decode<T: ScaleDecodable>(from data: Data) throws -> T {
-        return try decoder(data: data).decode()
-    }
-    
-    public func decode<T: ScaleDecodable>(_ type: T.Type, from data: Data) throws -> T {
-        return try self.decode(from: data)
-    }
+@inlinable
+public func decoder(from data: Data) -> DataDecoder { DataDecoder(data: data) }
+
+@inlinable
+public func encode<T: Encodable>(_ value: T, reservedCapacity count: Int = 4096) throws -> Data {
+    var encoder = encoder(reservedCapacity: count)
+    try encoder.encode(value)
+    return encoder.output
+}
+
+@inlinable
+public func decode<T: Decodable>(from data: Data) throws -> T {
+    var decoder = decoder(from: data)
+    return try decoder.decode()
+}
+
+@inlinable
+public func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
+    return try decode(from: data)
 }

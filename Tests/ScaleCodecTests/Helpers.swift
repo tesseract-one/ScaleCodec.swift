@@ -37,13 +37,11 @@ extension String {
     }
 }
 
-func RunEncDecTests<T: Equatable & ScaleCodable>(_ tests: [(T, String)]) {
-    let codec = SCALE.default
-    
+func RunEncDecTests<T: Equatable & Codable>(_ tests: [(T, String)]) {
     for (v, d) in tests {
         do {
-            let data = try codec.encode(v)
-            let decoded = try codec.decode(T.self, from: d.hexData!)
+            let data = try ScaleCodec.encode(v)
+            let decoded = try ScaleCodec.decode(T.self, from: d.hexData!)
             XCTAssertEqual(data.hex, d)
             XCTAssertEqual(decoded, v)
         } catch {

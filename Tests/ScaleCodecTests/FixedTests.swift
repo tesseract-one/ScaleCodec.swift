@@ -26,13 +26,13 @@ final class FixedTests: XCTestCase {
     }
     
     func testDataStructBadSizeErrors() {
-        XCTAssertThrowsError(try SCALE.default.encode(THash(Data([0, 1, 2]))))
-        XCTAssertThrowsError(try SCALE.default.encode(THash(Data([0, 1, 2, 3, 4]))))
+        XCTAssertThrowsError(try ScaleCodec.encode(THash(Data([0, 1, 2]))))
+        XCTAssertThrowsError(try ScaleCodec.encode(THash(Data([0, 1, 2, 3, 4]))))
     }
     
     func testArrayStructBadSizeErrors() {
-        XCTAssertThrowsError(try SCALE.default.encode(TStringArray4(["1", "2", "3"])))
-        XCTAssertThrowsError(try SCALE.default.encode(TStringArray4(["1", "2", "3", "4", "5"])))
+        XCTAssertThrowsError(try ScaleCodec.encode(TStringArray4(["1", "2", "3"])))
+        XCTAssertThrowsError(try ScaleCodec.encode(TStringArray4(["1", "2", "3", "4", "5"])))
     }
 }
 
@@ -44,7 +44,7 @@ private struct TStringArray4: Equatable {
     }
 }
 
-extension TStringArray4: ScaleFixed {
+extension TStringArray4: FixedCodable {
     typealias Element = String
     
     static var fixedElementCount: Int = 4
@@ -66,7 +66,7 @@ private struct THash: Equatable {
     }
 }
 
-extension THash: ScaleFixedData {
+extension THash: FixedDataCodable {
     static var fixedBytesCount: Int = 4
     
     init(decoding data: Data) throws {

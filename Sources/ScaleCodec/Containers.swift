@@ -7,75 +7,81 @@
 
 import Foundation
 
-public protocol ScaleContainerEncodable {
+public protocol ContainerEncodable {
     associatedtype EElement
     
-    func encode(in encoder: ScaleEncoder, writer: @escaping (EElement, ScaleEncoder) throws -> Void) throws
+    func encode<E: Encoder>(in encoder: inout E, writer: @escaping (EElement, inout E) throws -> Void) throws
 }
 
-public protocol ScaleContainerDecodable {
+public protocol ContainerDecodable {
     associatedtype DElement
     
-    init(from decoder: ScaleDecoder, reader: @escaping (ScaleDecoder) throws -> DElement) throws
+    init<D: Decoder>(from decoder: inout D, reader: @escaping (inout D) throws -> DElement) throws
 }
 
-extension ScaleContainerEncodable where EElement: ScaleEncodable {
-    public func encode(in encoder: ScaleEncoder) throws {
-        try self.encode(in: encoder) { val, enc in
+extension ContainerEncodable where EElement: Encodable {
+    @inlinable
+    public func encode<E: Encoder>(in encoder: inout E) throws {
+        try self.encode(in: &encoder) { val, enc in
             try enc.encode(val)
         }
     }
 }
 
-extension ScaleContainerDecodable where DElement: ScaleDecodable {
-    public init(from decoder: ScaleDecoder) throws {
-        try self.init(from: decoder) { try $0.decode() }
+extension ContainerDecodable where DElement: Decodable {
+    @inlinable
+    public init<D: Decoder>(from decoder: inout D) throws {
+        try self.init(from: &decoder) { try $0.decode() }
     }
 }
 
-public protocol ScaleDoubleContainerEncodable {
+public protocol DoubleContainerEncodable {
     associatedtype ELeft
     associatedtype ERight
     
-    func encode(
-        in encoder: ScaleEncoder,
-        lwriter: @escaping (ELeft, ScaleEncoder) throws -> Void,
-        rwriter: @escaping (ERight, ScaleEncoder) throws -> Void
+    func encode<E: Encoder>(
+        in encoder: inout E,
+        lwriter: @escaping (ELeft, inout E) throws -> Void,
+        rwriter: @escaping (ERight, inout E) throws -> Void
     ) throws
 }
 
-public protocol ScaleDoubleContainerDecodable {
+public protocol DoubleContainerDecodable {
     associatedtype DLeft
     associatedtype DRight
     
-    init(
-        from decoder: ScaleDecoder,
-        lreader: @escaping (ScaleDecoder) throws -> DLeft,
-        rreader: @escaping (ScaleDecoder) throws -> DRight
+    init<D: Decoder>(
+        from decoder: inout D,
+        lreader: @escaping (inout D) throws -> DLeft,
+        rreader: @escaping (inout D) throws -> DRight
     ) throws
 }
 
-extension ScaleDoubleContainerEncodable where ELeft: ScaleEncodable {
-    public func encode(in encoder: ScaleEncoder, writer: @escaping (ERight, ScaleEncoder) throws -> Void) throws {
-        try encode(in: encoder, lwriter: { val, enc in try enc.encode(val) }, rwriter: writer)
+extension DoubleContainerEncodable where ELeft: Encodable {
+    @inlinable
+    public func encode<E: Encoder>(in encoder: inout E, writer: @escaping (ERight, inout E) throws -> Void) throws {
+        try encode(in: &encoder, lwriter: { val, enc in try enc.encode(val) }, rwriter: writer)
     }
 }
 
-extension ScaleDoubleContainerEncodable where ERight: ScaleEncodable {
-    public func encode(in encoder: ScaleEncoder, writer: @escaping (ELeft, ScaleEncoder) throws -> Void) throws {
-        try encode(in: encoder, lwriter: writer, rwriter: { val, enc in try enc.encode(val) })
+extension DoubleContainerEncodable where ERight: Encodable {
+    @inlinable
+    public func encode<E: Encoder>(in encoder: inout E, writer: @escaping (ELeft, inout E) throws -> Void) throws {
+        try encode(in: &encoder, lwriter: writer, rwriter: { val, enc in try enc.encode(val) })
     }
 }
 
-extension ScaleDoubleContainerDecodable where DLeft: ScaleDecodable {
-    public init(from decoder: ScaleDecoder, reader: @escaping (ScaleDecoder) throws -> DRight) throws {
-        try self.init(from: decoder, lreader: { try $0.decode() }, rreader: reader)
+extension DoubleContainerDecodable where DLeft: Decodable {
+    @inlinable
+    public init<D: Decoder>(from decoder: inout D, reader: @escaping (inout D) throws -> DRight) throws {
+        try self.init(from: &decoder, lreader: { try $0.decode() }, rreader: reader)
     }
 }
 
-extension ScaleDoubleContainerDecodable where DRight: ScaleDecodable {
-    public init(from decoder: ScaleDecoder, reader: @escaping (ScaleDecoder) throws -> DLeft) throws {
-        try self.init(from: decoder, lreader: reader, rreader: { try $0.decode() })
+extension DoubleContainerDecodable where DRight: Decodable {
+    @inlinable
+    public init<D: Decoder>(from decoder: inout D, reader: @escaping (inout D) throws -> DLeft) throws {
+        try self.init(from: &decoder, lreader: reader, rreader: { try $0.decode() })
     }
 }
 

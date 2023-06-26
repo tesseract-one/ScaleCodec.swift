@@ -33,12 +33,12 @@ final class EnumTests: XCTestCase {
     }
     
     func testSimpleBadCaseId() {
-        XCTAssertThrowsError(try SCALE.default.decode(TEnum.self, from: "ff".hexData!))
+        XCTAssertThrowsError(try ScaleCodec.decode(TEnum.self, from: "ff".hexData!))
     }
 }
 
 
-private enum TEnum: CaseIterable, ScaleCodable {
+private enum TEnum: CaseIterable, Codable {
     case c1
     case c2
     case c3
@@ -46,14 +46,14 @@ private enum TEnum: CaseIterable, ScaleCodable {
     case c5
 }
 
-private enum TDataEnum: ScaleCodable, Equatable {
+private enum TDataEnum: Codable, Equatable {
     case c1(UInt16)
     case c2(Bool?)
     case c3(String, Int32)
     case c4(String?)
     case c5([TEnum])
     
-    init(from decoder: ScaleDecoder) throws {
+    init<D: Decoder>(from decoder: inout D) throws {
         let opt = try decoder.decode(.enumCaseId)
         switch opt {
         case 0: self = try .c1(decoder.decode(.compact))
@@ -65,13 +65,24 @@ private enum TDataEnum: ScaleCodable, Equatable {
         }
     }
     
-    func encode(in encoder: ScaleEncoder) throws {
+    func encode<E: Encoder>(in encoder: inout E) throws {
         switch self {
-        case .c1(let uint): try encoder.encode(0, .enumCaseId).encode(uint, .compact)
-        case .c2(let opt): try encoder.encode(1, .enumCaseId).encode(opt)
-        case .c3(let str, let int): try encoder.encode(2, .enumCaseId).encode(str).encode(int)
-        case .c4(let ostr): try encoder.encode(3, .enumCaseId).encode(ostr)
-        case .c5(let arr): try encoder.encode(4, .enumCaseId).encode(arr)
+        case .c1(let uint):
+            try encoder.encode(0, .enumCaseId)
+            try encoder.encode(uint, .compact)
+        case .c2(let opt):
+            try encoder.encode(1, .enumCaseId)
+            try encoder.encode(opt)
+        case .c3(let str, let int):
+            try encoder.encode(2, .enumCaseId)
+            try encoder.encode(str)
+            try encoder.encode(int)
+        case .c4(let ostr):
+            try encoder.encode(3, .enumCaseId)
+            try encoder.encode(ostr)
+        case .c5(let arr):
+            try encoder.encode(4, .enumCaseId)
+            try encoder.encode(arr)
         }
     }
 }

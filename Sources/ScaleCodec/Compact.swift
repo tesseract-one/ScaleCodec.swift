@@ -86,8 +86,8 @@ extension CompactCodable where Self: DataConvertible { // DataConvertible
     }
 }
 
-extension Compact: ScaleEncodable {
-    public func encode(in encoder: ScaleEncoder) throws {
+extension Compact: Encodable {
+    public func encode<E: Encoder>(in encoder: inout E) throws {
         let u32 = UInt32(clamping: value.uint)
         switch u32 {
         case 0x00...0x3f: try encoder.encode(UInt8(value.uint) << 2)
@@ -95,24 +95,24 @@ extension Compact: ScaleEncodable {
         case 0x4000...0x3fffffff: try encoder.encode(UInt32(value.uint) << 2 | 0b10)
         default:
             if value.uint > T.compactMax {
-                throw SEncodingError.invalidValue(
+                throw EncodingError.invalidValue(
                     self,
-                    SEncodingError.Context(
+                    EncodingError.Context(
                         path: encoder.path,
                         description: "Value is too big: \(value.uint), max: \(T.compactMax)"
                     )
                 )
             }
-            var data = value.trimmedLittleEndianData
-            data.insert(UInt8(data.count - 4) << 2 | 0b11, at: 0)
+            let data = value.trimmedLittleEndianData
+            encoder.write(UInt8(data.count - 4) << 2 | 0b11)
             encoder.write(data)
         }
     }
 }
 
-extension Compact: ScaleDecodable {
-    public init(from decoder: ScaleDecoder) throws {
-        let first = try decoder.peekOrError(count: 1, type: type(of: self)).first!
+extension Compact: Decodable {
+    public init<D: Decoder>(from decoder: inout D) throws {
+        let first = try decoder.peek()
         switch first & 0b11 {
         case 0b00:
             let val = try decoder.decode(UInt8.self) >> 2
@@ -127,9 +127,9 @@ extension Compact: ScaleDecodable {
             value = T.self == UInt32.self ? val as! T : T(uint: T.UI(val))
         case 0b11:
             let len = try decoder.decode(UInt8.self) >> 2 + 4
-            let bytes = try decoder.readOrError(count: Int(len), type: type(of: self))
+            let bytes = try decoder.read(count: Int(len))
             guard let val = T(trimmedLittleEndianData: bytes) else {
-                throw SDecodingError.dataCorrupted(
+                throw DecodingError.dataCorrupted(
                     decoder.errorContext("Can't init \(T.self) with bytes \(bytes)")
                 )
             }
@@ -140,26 +140,47 @@ extension Compact: ScaleDecodable {
     }
 }
 
-extension ScaleCustomDecoderFactory where T: CompactCodable {
-    public static var compact: ScaleCustomDecoderFactory {
-        ScaleCustomDecoderFactory { try $0.decode(Compact<T>.self).value }
+extension Compact: SizeCalculable {
+    public static func calculateSize<D: SkippableDecoder>(in decoder: inout D) throws -> Int {
+        let size = try calculateSizeNoSkip(in: &decoder)
+        try decoder.skip(count: size)
+        return size
     }
 }
 
-extension ScaleCustomEncoderFactory where T: CompactCodable {
-    public static var compact: ScaleCustomEncoderFactory {
-        ScaleCustomEncoderFactory { try $0.encode(Compact($1)) }
+public extension Compact {
+    static func calculateSizeNoSkip<D: SkippableDecoder>(in decoder: inout D) throws -> Int {
+        let first = try decoder.peek()
+        switch first & 0b11 {
+        case 0b00: return 1
+        case 0b01: return 2
+        case 0b10: return 4
+        case 0b11: return Int(first >> 2 + 4) + 1
+        default: fatalError() // Only to silence compiler error
+        }
+    }
+}
+
+extension CustomDecoderFactory where T: CompactCodable {
+    public static var compact: CustomDecoderFactory {
+        CustomDecoderFactory { try $0.decode(Compact<T>.self).value }
+    }
+}
+
+extension CustomEncoderFactory where T: CompactCodable {
+    public static var compact: CustomEncoderFactory {
+        CustomEncoderFactory { try $0.encode(Compact($1)) }
     }
 }
 
 extension Compact {
-    private static func checkSize<T2>(value: T2, decoder: ScaleDecoder) throws
+    private static func checkSize<T2>(value: T2, decoder: Decoder) throws
         where T2: UnsignedInteger
     {
         if T.compactMax < value {
-            throw SDecodingError.typeMismatch(
+            throw DecodingError.typeMismatch(
                 T.self,
-                SDecodingError.Context(
+                DecodingError.Context(
                     path: decoder.path,
                     description: "Can't store \(value) in \(T.self)"
                 )

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum SEncodingError : Error {
+public enum EncodingError : Error {
     public struct Context {
         public let path: [String]
         public let debugDescription: String
@@ -18,10 +18,10 @@ public enum SEncodingError : Error {
         }
     }
     
-    case invalidValue(Any, SEncodingError.Context)
+    case invalidValue(Any, EncodingError.Context)
 }
 
-public enum SDecodingError : Error {
+public enum DecodingError : Error {
     public struct Context {
         public let path: [String]
         public let debugDescription: String
@@ -37,19 +37,24 @@ public enum SDecodingError : Error {
     ///
     /// As associated values, this case contains the attempted type and context
     /// for debugging.
-    case typeMismatch(Any.Type, SDecodingError.Context)
+    case typeMismatch(Any.Type, DecodingError.Context)
 
     /// An indication that a non-optional value of the given type was expected,
     /// but a null value was found.
     ///
     /// As associated values, this case contains the attempted type and context
     /// for debugging.
-    case valueNotFound(Any.Type, SDecodingError.Context)
+    case valueNotFound(Any.Type, DecodingError.Context)
 
     /// An indication that the data is corrupted or otherwise invalid.
     ///
     /// As an associated value, this case contains the context for debugging.
-    case dataCorrupted(SDecodingError.Context)
+    case dataCorrupted(DecodingError.Context)
+    
+    /// An indication that the amount of data is unsufficient.
+    ///
+    /// As an associated value, this case contains the context for debugging.
+    case notEnoughData(DecodingError.Context)
 }
 
 

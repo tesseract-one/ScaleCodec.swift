@@ -7,39 +7,47 @@
 
 import Foundation
 
-extension Data: ScaleEncodable {
-    public func encode(in encoder: ScaleEncoder) throws {
+extension Data: Encodable {
+    public func encode<E: Encoder>(in encoder: inout E) throws {
         try encoder.encode(UInt32(count), .compact)
         encoder.write(self)
     }
 }
 
-extension Data: ScaleDecodable {
-    public init(from decoder: ScaleDecoder) throws {
+extension Data: Decodable {
+    public init<D: Decoder>(from decoder: inout D) throws {
         let count = try decoder.decode(UInt32.self, .compact)
-        self = try decoder.readOrError(count: Int(count), type: Data.self)
+        self = try decoder.read(count: Int(count))
     }
 }
 
-extension ScaleCustomDecoderFactory where T == Data {
-    public static func fixed(_ size: UInt) -> ScaleCustomDecoderFactory {
-        ScaleCustomDecoderFactory { try $0.readOrError(count: Int(size), type: Data.self) }
+extension Data: SizeCalculable {
+    public static func calculateSize<D: SkippableDecoder>(in decoder: inout D) throws -> Int {
+        let cSize = try Compact<UInt32>.calculateSizeNoSkip(in: &decoder)
+        let count = try Int(decoder.decode(UInt32.self, .compact))
+        try decoder.skip(count: count)
+        return count + cSize
     }
 }
 
-extension ScaleCustomEncoderFactory where T == Data {
-    public static func fixed(_ size: UInt) -> ScaleCustomEncoderFactory {
-        ScaleCustomEncoderFactory { encoder, data in
+extension CustomDecoderFactory where T == Data {
+    public static func fixed(_ size: UInt) -> CustomDecoderFactory {
+        CustomDecoderFactory { try $0.read(count: Int(size)) }
+    }
+}
+
+extension CustomEncoderFactory where T == Data {
+    public static func fixed(_ size: UInt) -> CustomEncoderFactory {
+        CustomEncoderFactory { encoder, data in
             guard data.count == size else {
-                throw SEncodingError.invalidValue(
-                    data, SEncodingError.Context(
+                throw EncodingError.invalidValue(
+                    data, EncodingError.Context(
                         path: encoder.path,
                         description: "Wrong bytes count \(data.count) expected \(size)"
                     )
                 )
             }
             encoder.write(data)
-            return encoder
         }
     }
 }

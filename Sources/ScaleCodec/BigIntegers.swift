@@ -38,7 +38,7 @@ extension DoubleWidth: CompactCodable where Base: UnsignedInteger {
 
 extension DoubleWidth: CompactConvertible where Base: UnsignedInteger {}
 
-extension DoubleWidth: ScaleFixedData, DataConvertible {}
+extension DoubleWidth: FixedDataCodable, DataConvertible, SizeCalculable {}
 
 private let SCOMPACT_BIT_WIDTH: Int = 536
 private let SCOMPACT_MAX_VALUE = (UInt1024(1) << SCOMPACT_BIT_WIDTH) - 1

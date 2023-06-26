@@ -7,42 +7,42 @@
 
 import Foundation
 
-extension Array: ScaleContainerEncodable {
+extension Array: ContainerEncodable {
     public typealias EElement = Element
     
-    public func encode(in encoder: ScaleEncoder, writer: @escaping (EElement, ScaleEncoder) throws -> Void) throws {
+    public func encode<E: Encoder>(in encoder: inout E, writer: @escaping (EElement, inout E) throws -> Void) throws {
         try encoder.encode(UInt32(count), .compact)
         for element in self {
-            try writer(element, encoder)
+            try writer(element, &encoder)
         }
     }
 }
 
-extension Array: ScaleContainerDecodable {
+extension Array: ContainerDecodable {
     public typealias DElement = Element
     
-    public init(from decoder: ScaleDecoder, reader: @escaping (ScaleDecoder) throws -> Element) throws {
+    public init<D: Decoder>(from decoder: inout D, reader: @escaping (inout D) throws -> Element) throws {
         let size = try Int(decoder.decode(UInt32.self, .compact))
         var array = Array<Element>()
         array.reserveCapacity(size)
         for _ in 0..<size {
-            try array.append(reader(decoder))
+            try array.append(reader(&decoder))
         }
         self = array
     }
 }
 
-extension Array: ScaleEncodable where Element: ScaleEncodable {}
+extension Array: Encodable where Element: Encodable {}
 
-extension Array: ScaleDecodable where Element: ScaleDecodable {}
+extension Array: Decodable where Element: Decodable {}
 
-public protocol ScaleArrayInitializable {
+public protocol ArrayInitializable {
     associatedtype IElement
     
     init(array: [IElement])
 }
 
-extension Array: ScaleArrayInitializable {
+extension Array: ArrayInitializable {
     public typealias IElement = Element
     
     public init(array: [IElement]) {
@@ -50,63 +50,79 @@ extension Array: ScaleArrayInitializable {
     }
 }
 
-public protocol ScaleArrayConvertible {
+public protocol ArrayConvertible {
     associatedtype CElement
     
     var asArray: [CElement] { get }
 }
 
-extension Array: ScaleArrayConvertible {
+extension Array: ArrayConvertible {
     public typealias CElement = Element
     
     public var asArray: [CElement] { return self }
 }
 
-extension ScaleCustomDecoderFactory where T: ScaleArrayInitializable, T.IElement: ScaleDecodable {
-    public static func fixed(_ size: UInt) -> ScaleCustomDecoderFactory {
+extension CustomDecoderFactory where T: ArrayInitializable, T.IElement: Decodable {
+    public static func fixed(_ size: UInt) -> CustomDecoderFactory {
         .fixed(size) { decoder in try decoder.decode() }
     }
 }
 
-extension ScaleCustomDecoderFactory where T: ScaleArrayInitializable {
+extension CustomDecoderFactory where T: ArrayInitializable {
     public static func fixed(
-        _ size: UInt, _ reader: @escaping (ScaleDecoder) throws -> T.IElement
-    ) -> ScaleCustomDecoderFactory {
-        ScaleCustomDecoderFactory { decoder in
+        _ size: UInt, _ reader: @escaping (inout D) throws -> T.IElement
+    ) -> CustomDecoderFactory {
+        CustomDecoderFactory { decoder in
             var values = Array<T.IElement>()
             values.reserveCapacity(Int(size))
             for _ in 0..<size {
-                try values.append(reader(decoder))
+                try values.append(reader(&decoder))
             }
             return T(array: values)
         }
     }
 }
 
-extension ScaleCustomEncoderFactory where T: ScaleArrayConvertible {
+extension CustomEncoderFactory where T: ArrayConvertible {
     public static func fixed(
-        _ size: UInt, writer: @escaping (T.CElement, ScaleEncoder) throws -> Void
-    ) -> ScaleCustomEncoderFactory {
-        ScaleCustomEncoderFactory { encoder, conv in
+        _ size: UInt, writer: @escaping (T.CElement, inout E) throws -> Void
+    ) -> CustomEncoderFactory {
+        CustomEncoderFactory { encoder, conv in
             let values = conv.asArray
             guard values.count == size else {
-                throw SEncodingError.invalidValue(
-                    values, SEncodingError.Context(
+                throw EncodingError.invalidValue(
+                    values, EncodingError.Context(
                         path: encoder.path,
                         description: "Wrong value count \(values.count) expected \(size)"
                     )
                 )
             }
             for val in values {
-                try writer(val, encoder)
+                try writer(val, &encoder)
             }
-            return encoder
         }
     }
 }
 
-extension ScaleCustomEncoderFactory where T: ScaleArrayConvertible, T.CElement: ScaleEncodable {
-    public static func fixed(_ size: UInt) -> ScaleCustomEncoderFactory {
+extension CustomEncoderFactory where T: ArrayConvertible, T.CElement: Encodable {
+    public static func fixed(_ size: UInt) -> CustomEncoderFactory {
         .fixed(size) { val, enc in try enc.encode(val) }
     }
 }
+
+extension Array: ContainerSizeCalculable {
+    public typealias SElement = Element
+    
+    public static func calculateSize<D: SkippableDecoder>(
+        in decoder: inout D,
+        esize: @escaping (inout D) throws -> Int
+    ) throws -> Int {
+        let cSize = try Compact<UInt32>.calculateSizeNoSkip(in: &decoder)
+        let size = try Int(decoder.decode(UInt32.self, .compact))
+        return try (0..<size).reduce(cSize) { (sum, _) in
+            try sum + esize(&decoder)
+        }
+    }
+}
+
+extension Array: SizeCalculable where Element: SizeCalculable {}
