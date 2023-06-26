@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'ScaleCodec'
-  s.version          = '0.2.1'
+  s.version          = '0.3.0'
   s.summary          = 'SCALE codec implementation for Swift language'
 
   s.description      = <<-DESC
