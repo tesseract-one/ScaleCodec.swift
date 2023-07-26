@@ -39,9 +39,10 @@ extension Encoder {
     }
 }
 
-public func encode<T>(_ value: T, _ custom: CustomEncoderFactory<T, DataEncoder>,
-                      reservedCapacity count: Int = 4096) throws -> Data
-{
+public func encode<T>(
+    _ value: T, _ custom: CustomEncoderFactory<T, DataEncoder>,
+    reservedCapacity count: Int = SCALE_CODEC_DEFAULT_ENCODER_CAPACITY
+) throws -> Data {
     var _encoder = encoder(reservedCapacity: count)
     try _encoder.encode(value, custom)
     return _encoder.output
