@@ -2,8 +2,8 @@
 
 ![🐧 linux: ready](https://img.shields.io/badge/%F0%9F%90%A7%20linux-ready-red.svg)
 [![GitHub license](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)](LICENSE)
-[![Build Status](https://github.com/tesseract-one/swift-scale-codec/workflows/CI/badge.svg?branch=main)](https://github.com/tesseract-one/swift-scale-codec/actions?query=workflow%3ACI+branch%3Amain)
-[![GitHub release](https://img.shields.io/github/release/tesseract-one/swift-scale-codec.svg)](https://github.com/tesseract-one/swift-scale-codec/releases)
+[![Build Status](https://github.com/tesseract-one/ScaleCodec.swift/workflows/CI/badge.svg?branch=main)](https://github.com/tesseract-one/ScaleCodec.swift/actions?query=workflow%3ACI+branch%3Amain)
+[![GitHub release](https://img.shields.io/github/release/tesseract-one/ScaleCodec.swift.svg)](https://github.com/tesseract-one/ScaleCodec.swift/releases)
 [![SPM compatible](https://img.shields.io/badge/SwiftPM-Compatible-brightgreen.svg)](https://swift.org/package-manager/)
 [![CocoaPods version](https://img.shields.io/cocoapods/v/ScaleCodec.svg)](https://cocoapods.org/pods/ScaleCodec)
 ![Platform OS X | iOS | tvOS | watchOS | Linux](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X%20%7C%20iOS%20%7C%20tvOS%20%7C%20watchOS-orange.svg)
@@ -35,7 +35,7 @@ Setup instructions:
   Add this to the dependency section of your `Package.swift` manifest:
 
     ```Swift
-    .package(url: "https://github.com/tesseract-one/swift-scale-codec.git", from: "0.3.0")
+    .package(url: "https://github.com/tesseract-one/ScaleCodec.swift.git", from: "0.3.0")
     ```
 
 - **CocoaPods:** Put this in your `Podfile`:

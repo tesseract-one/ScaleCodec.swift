@@ -7,11 +7,11 @@ Pod::Spec.new do |s|
 SCALE codec implementation for Swift language. Supports all SCALE standard types.
                        DESC
 
-  s.homepage         = 'https://github.com/tesseract-one/swift-scale-codec'
+  s.homepage         = 'https://github.com/tesseract-one/ScaleCodec.swift'
 
   s.license          = { :type => 'Apache 2.0', :file => 'LICENSE' }
   s.author           = { 'Tesseract Systems, Inc.' => 'info@tesseract.one' }
-  s.source           = { :git => 'https://github.com/tesseract-one/swift-scale-codec.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/tesseract-one/ScaleCodec.swift.git', :tag => s.version.to_s }
 
   s.ios.deployment_target = '9.0'
   s.osx.deployment_target = '10.10'
