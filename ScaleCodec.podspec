@@ -21,6 +21,8 @@ SCALE codec implementation for Swift language. Supports all SCALE standard types
   s.swift_version = '5.4'
 
   s.module_name = 'ScaleCodec'
+  
+  s.dependency 'Tuples', '~> 0.1.0'
 
   s.source_files = 'Sources/ScaleCodec/**/*.swift', 'Sources/DoubleWidth/*.swift'
   

@@ -8,7 +8,7 @@
 import Foundation
 import Tuples
 
-public extension LinkedTuple where DroppedLast: Decodable, Last: Decodable {
+public extension ListTuple where DroppedLast: Decodable, Last: Decodable {
     @inlinable
     init<D: Decoder>(from decoder: inout D) throws {
         let prefix = try DroppedLast(from: &decoder)
@@ -17,7 +17,7 @@ public extension LinkedTuple where DroppedLast: Decodable, Last: Decodable {
     }
 }
 
-public extension LinkedTuple where DroppedLast: Encodable, Last: Encodable {
+public extension ListTuple where DroppedLast: Encodable, Last: Encodable {
     @inlinable
     func encode<E: Encoder>(in encoder: inout E) throws {
         try dropLast.encode(in: &encoder)
@@ -25,7 +25,7 @@ public extension LinkedTuple where DroppedLast: Encodable, Last: Encodable {
     }
 }
 
-public extension LinkedTuple where DroppedLast: SizeCalculable, Last: SizeCalculable {
+public extension ListTuple where DroppedLast: SizeCalculable, Last: SizeCalculable {
     @inlinable
     static func calculateSize<D: SkippableDecoder>(in decoder: inout D) throws -> Int {
         try DroppedLast.calculateSize(in: &decoder) + Last.calculateSize(in: &decoder)

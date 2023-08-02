@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-scale-codec",
+    name: "ScaleCodec",
     platforms: [.macOS(.v10_12), .iOS(.v10), .tvOS(.v10), .watchOS(.v6)],
     products: [
         .library(
@@ -12,7 +12,7 @@ let package = Package(
             targets: ["ScaleCodec"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/tesseract-one/Tuples.swift.git", .branch("main"))
+        .package(url: "https://github.com/tesseract-one/Tuples.swift.git", .upToNextMinor(from: "0.1.0"))
     ],
     targets: [
         .target(
