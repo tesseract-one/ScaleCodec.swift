@@ -88,25 +88,6 @@ assert(compact == UInt64(1 << 32))
 // let compact = try decode(Compact<UInt64>.self, from: data).value
 ```
 
-#### Int[128-1024] and UInt[128-1024]
-
-`Int[128-1024]` and `UInt[128-1024]` types implemented with `DoubleWidth` Swift type from Apple. It works fine for 128-256 bits but slow for 512-1024 bits.
-
-```Swift
-import ScaleCodec
-
-let data = Data([
-    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
-])
-
-let encoded = try encode(UInt128(UInt256(2)^128 - 1))
-assert(encoded == data))
-
-let compact = try decode(UInt128.self, from: data)
-assert(compact == UInt128(UInt256(2)^128 - 1))
-```
-
 #### Data fixed encoding
 
 `Data` type can be encoded with fixed encoding. In this mode data length will not be stored so length should be provided manually.

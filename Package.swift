@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "ScaleCodec",
-    platforms: [.macOS(.v10_12), .iOS(.v10), .tvOS(.v10), .watchOS(.v6)],
+    platforms: [.macOS(.v10_13), .iOS(.v11), .tvOS(.v11), .watchOS(.v6)],
     products: [
         .library(
             name: "ScaleCodec",
