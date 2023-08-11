@@ -24,21 +24,8 @@ public typealias UInt256 = DoubleWidth<UInt128>
 public typealias UInt512 = DoubleWidth<UInt256>
 public typealias UInt1024 = DoubleWidth<UInt512>
 
-extension DoubleWidth: CompactCodable where Base: UnsignedInteger {
-    public typealias UI = Self
-    
-    public static var compactBitWidth: Int {
-        Self.bitWidth >= SCOMPACT_BIT_WIDTH ? SCOMPACT_BIT_WIDTH : Self.bitWidth
-    }
-    
-    public static var compactMax: UI {
-        Self.bitWidth >= SCOMPACT_BIT_WIDTH ? UI(SCOMPACT_MAX_VALUE) : Self.max
-    }
-}
-
+extension DoubleWidth: CompactCodable where Base: UnsignedInteger {}
 extension DoubleWidth: CompactConvertible where Base: UnsignedInteger {}
 
 extension DoubleWidth: FixedDataCodable, DataConvertible, SizeCalculable {}
 
-private let SCOMPACT_BIT_WIDTH: Int = 536
-private let SCOMPACT_MAX_VALUE = (UInt1024(1) << SCOMPACT_BIT_WIDTH) - 1

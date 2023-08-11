@@ -7,6 +7,8 @@
 
 import Foundation
 
+public let COMPACT_MAX_BIT_WIDTH: Int = 536
+
 public protocol CompactCodable: Hashable {
     associatedtype UI: UnsignedInteger
     
@@ -16,8 +18,8 @@ public protocol CompactCodable: Hashable {
     var uint: UI { get }
     var trimmedLittleEndianData: Data { get }
     
+    var compactBitsUsed: Int { get }
     static var compactBitWidth: Int { get }
-    static var compactMax: UI { get }
 }
 
 public struct Compact<T: CompactCodable>: Equatable, Hashable {
@@ -49,7 +51,7 @@ extension Compact: CompactConvertible {
 
 extension CompactCodable { // CompactConvertible
     public init<C: CompactCodable>(compact: Compact<C>) throws {
-        guard compact.value.uint <= Self.compactMax else {
+        guard compact.value.compactBitsUsed <= Self.compactBitWidth else {
             throw Compact<C>.Error.overflow(
                 bitWidth: Self.compactBitWidth,
                 value: compact.value.uint,
@@ -60,7 +62,7 @@ extension CompactCodable { // CompactConvertible
     }
     
     public func compact<C: CompactCodable>() throws -> Compact<C> {
-        guard uint <= C.compactMax else {
+        guard compactBitsUsed <= C.compactBitWidth else {
             throw Compact<Self>.Error.overflow(
                 bitWidth: C.compactBitWidth,
                 value: uint,
@@ -88,18 +90,19 @@ extension CompactCodable where Self: DataConvertible { // DataConvertible
 
 extension Compact: Encodable {
     public func encode<E: Encoder>(in encoder: inout E) throws {
-        let u32 = UInt32(clamping: value.uint)
-        switch u32 {
-        case 0x00...0x3f: try encoder.encode(UInt8(value.uint) << 2)
-        case 0x40...0x3fff: try encoder.encode(UInt16(value.uint) << 2 | 0b01)
-        case 0x4000...0x3fffffff: try encoder.encode(UInt32(value.uint) << 2 | 0b10)
+        switch value.compactBitsUsed {
+        case 0...6: try encoder.encode(UInt8(value.uint) << 2)
+        case 7...14: try encoder.encode(UInt16(value.uint) << 2 | 0b01)
+        case 14...30: try encoder.encode(UInt32(value.uint) << 2 | 0b10)
         default:
-            if value.uint > T.compactMax {
+            guard value.compactBitsUsed <= COMPACT_MAX_BIT_WIDTH else {
+                let err = "Value is too big: \(value.uint), bits: \(value.compactBitsUsed)," +
+                          "max bits: \(COMPACT_MAX_BIT_WIDTH)"
                 throw EncodingError.invalidValue(
                     self,
                     EncodingError.Context(
                         path: encoder.path,
-                        description: "Value is too big: \(value.uint), max: \(T.compactMax)"
+                        description: err
                     )
                 )
             }
@@ -119,11 +122,11 @@ extension Compact: Decodable {
             value = T.self == UInt8.self ? val as! T : T(uint: T.UI(val))
         case 0b01:
             let val = try decoder.decode(UInt16.self) >> 2
-            try Self.checkSize(value: val, decoder: decoder)
+            try Self.checkSize(bits: val.compactBitsUsed, decoder: decoder)
             value = T.self == UInt16.self ? val as! T : T(uint: T.UI(val))
         case 0b10:
             let val = try decoder.decode(UInt32.self) >> 2
-            try Self.checkSize(value: val, decoder: decoder)
+            try Self.checkSize(bits: val.compactBitsUsed, decoder: decoder)
             value = T.self == UInt32.self ? val as! T : T(uint: T.UI(val))
         case 0b11:
             let len = try decoder.decode(UInt8.self) >> 2 + 4
@@ -133,7 +136,7 @@ extension Compact: Decodable {
                     decoder.errorContext("Can't init \(T.self) with bytes \(bytes)")
                 )
             }
-            try Self.checkSize(value: val.uint, decoder: decoder)
+            try Self.checkSize(bits: val.compactBitsUsed, decoder: decoder)
             value = val
         default: fatalError() // Only to silence compiler error
         }
@@ -174,15 +177,13 @@ extension CustomEncoderFactory where T: CompactCodable {
 }
 
 extension Compact {
-    private static func checkSize<T2>(value: T2, decoder: Decoder) throws
-        where T2: UnsignedInteger
-    {
-        if T.compactMax < value {
+    private static func checkSize(bits: Int, decoder: Decoder) throws {
+        if T.compactBitWidth < bits {
             throw DecodingError.typeMismatch(
                 T.self,
                 DecodingError.Context(
                     path: decoder.path,
-                    description: "Can't store \(value) in \(T.self)"
+                    description: "Can't store \(bits) bits in \(T.self)"
                 )
             )
         }
@@ -197,8 +198,13 @@ extension UnsignedInteger where Self: CompactCodable, UI == Self {
 }
 
 extension FixedWidthInteger where Self: CompactCodable, UI == Self {
-    public static var compactBitWidth: Int { Self.bitWidth }
-    public static var compactMax: UI { Self.max }
+    public var compactBitsUsed: Int { bitWidth - leadingZeroBitCount }
+    public static var compactMax: Self {
+        bitWidth > COMPACT_MAX_BIT_WIDTH ? Self(1) << COMPACT_MAX_BIT_WIDTH - 1 : max
+    }
+    public static var compactBitWidth: Int {
+        bitWidth > COMPACT_MAX_BIT_WIDTH ? COMPACT_MAX_BIT_WIDTH : bitWidth
+    }
 }
 
 extension UInt8: CompactCodable, CompactConvertible {}
