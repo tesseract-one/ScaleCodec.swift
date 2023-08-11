@@ -17,20 +17,10 @@ let package = Package(
     targets: [
         .target(
             name: "ScaleCodec",
-            dependencies: [
-                .product(name: "Tuples", package: "Tuples.swift"),
-                "DoubleWidth"
-            ]),
-        .target(
-            name: "DoubleWidth",
-            dependencies: []),
+            dependencies: [ .product(name: "Tuples", package: "Tuples.swift") ]),
         .testTarget(
             name: "ScaleCodecTests",
-            dependencies: ["ScaleCodec"]),
-        .testTarget(
-            name: "DoubleWidthTests",
-            dependencies: ["ScaleCodec"]
-        )
+            dependencies: ["ScaleCodec"])
     ]
 )
 

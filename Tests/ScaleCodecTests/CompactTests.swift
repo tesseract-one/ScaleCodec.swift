@@ -26,18 +26,6 @@ final class CompactTests: XCTestCase {
         runTests(uint64Values(UInt64.self))
     }
     
-    func testUInt128() {
-        runTests(uint128Values(UInt128.self))
-    }
-    
-    func testUInt1024() {
-        let tests = uint128Values(UInt1024.self) + [
-            (UInt1024.compactMax, Data(repeating: 0xff, count: 68).hex)
-        ]
-        runTests(tests)
-        XCTAssertThrowsError(try ScaleCodec.encode(UInt1024(1) << 537, .compact))
-    }
-    
     func testTopLevelAPI() {
         do {
             let enc = try ScaleCodec.encode(UInt32.max, .compact)
@@ -84,17 +72,6 @@ final class CompactTests: XCTestCase {
             (T((1 << 56) - 1), "0f ff ff ff ff ff ff ff"),
             (T(1 << 56), "13 00 00 00 00 00 00 00 01"),
             (T(UInt64.max), "13 ff ff ff ff ff ff ff ff")
-        ]
-    }
-
-    func uint128Values<T: UnsignedInteger>(_ type: T.Type) -> [(T, String)] {
-        return uint64Values(type) + [
-            (T(UInt128(1) << 64), "17 00 00 00 00 00 00 00 00 01"),
-            (T(UInt128(1) << 72 - 1), "17 ff ff ff ff ff ff ff ff ff"),
-            (T(UInt128(1) << 72), "1b 00 00 00 00 00 00 00 00 00 01"),
-            (T(UInt128(1) << 80 - 1), "1b ff ff ff ff ff ff ff ff ff ff"),
-            (T(UInt128(1) << 120), "33 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01"),
-            (T(UInt128.max), "33 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff")
         ]
     }
 }

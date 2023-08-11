@@ -87,57 +87,6 @@ final class IntegerTests: XCTestCase {
         RunEncDecTests(tests)
     }
     
-    func testInt128() {
-        let tests = intValues(
-            max: Int128.max,
-            min: Int128.min,
-            bytes: Int128.bitWidth / 8
-        )
-        RunEncDecTests(tests)
-    }
-    
-    func testUInt128() {
-        let tests = uintValues(
-            max: UInt128.max,
-            bytes: UInt128.bitWidth / 8
-        )
-        RunEncDecTests(tests)
-    }
-    
-    func testInt256() {
-        let tests = intValues(
-            max: Int256.max,
-            min: Int256.min,
-            bytes: Int256.bitWidth / 8
-        )
-        RunEncDecTests(tests)
-    }
-    
-    func testUInt256() {
-        let tests = uintValues(
-            max: UInt256.max,
-            bytes: UInt256.bitWidth / 8
-        )
-        RunEncDecTests(tests)
-    }
-    
-    func testInt512() {
-        let tests = intValues(
-            max: Int512.max,
-            min: Int512.min,
-            bytes: Int512.bitWidth / 8
-        )
-        RunEncDecTests(tests)
-    }
-    
-    func testUInt512() {
-        let tests = uintValues(
-            max: UInt512.max,
-            bytes: UInt512.bitWidth / 8
-        )
-        RunEncDecTests(tests)
-    }
-    
     func uintValues<T: UnsignedInteger>(max: T, bytes: Int) -> [(T, String)] {
         let z = Data(repeating: 0x00, count: bytes)
         let m = Data(repeating: 0xff, count: bytes)
