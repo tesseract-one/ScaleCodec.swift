@@ -43,7 +43,7 @@ extension FixedWidthInteger {
             data.ensureSize(expected: Self.bitWidth / 8, leading: !littleEndian)
         }
         self = data.withUnsafeBytes {
-            let value = $0.load(as: Self.self)
+            let value = $0.loadUnaligned(as: Self.self)
             return littleEndian ? value.littleEndian : value.bigEndian
         }
     }
